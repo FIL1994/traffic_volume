@@ -23,9 +23,7 @@ struct TrafficData {
 }
 
 fn main() {
-    println!("Hello, world!");
-
-    let t = TrafficData {
+    let _t = TrafficData {
         lhrs: 1,
         os: 0.0,
         year: 2000,
@@ -55,7 +53,7 @@ fn main() {
         use csv::StringRecord;
 
         fn get_data(record: &StringRecord, index: usize) -> String {
-            record.get(index).unwrap().to_string()
+            record.get(index).unwrap().trim().to_string()
         }
 
         fn to_u32(string: String) -> u32 {
@@ -66,12 +64,8 @@ fn main() {
             let mut parseable_string = string.clone();
 
             match parseable_string.find(".") {
-                Some(_v) => {}
-                None => {
-
-                    parseable_string.push_str(".0");
-                    println!("not found {}", parseable_string);
-                }
+                Some(_v) => (),
+                None => parseable_string.push_str(".0"),
             };
 
             parseable_string.parse::<f32>().unwrap()
@@ -80,7 +74,6 @@ fn main() {
         match result {
             Ok(record) => {
                 use std::panic;
-                // let d = get_data(record, 1);
 
                 let result = panic::catch_unwind(|| {
                     let traffic_record = TrafficData {
@@ -88,13 +81,13 @@ fn main() {
                         os: to_f32(get_data(&record, 1)),
                         year: to_u32(get_data(&record, 2)),
                         hwy_number: to_u32(get_data(&record, 3)),
-                        hwy_type: get_data(&record, 4),
-                        location_desc: get_data(&record, 5),
-                        reg: get_data(&record, 6),
-                        section_length: to_f32(get_data(&record, 7)),
-                        connecting_link_length: 0.0,
-                        secondary_desc: "".to_string(),
-                        travel_pattern: "".to_string(),
+                        hwy_type: get_data(&record, 6),
+                        location_desc: get_data(&record, 7),
+                        reg: get_data(&record, 8),
+                        section_length: to_f32(get_data(&record, 9)),
+                        connecting_link_length: to_f32(get_data(&record, 10)),
+                        secondary_desc: get_data(&record, 11),
+                        travel_pattern: get_data(&record, 12),
                         dhv: 0.0,
                         directional_split: 0.0,
                         aadt: 1,
@@ -104,11 +97,15 @@ fn main() {
                         sawdt: 1,
                         wadt: 1,
                     };
+
+                    traffic_record
                 });
 
                 match result {
-                    Ok(_r) => {}
-                    _ => println!("error"),
+                    Ok(traffic_record) => traffic_data.push(traffic_record),
+                    _ => {
+                        println!("failed: \n {:?}", record);
+                    }
                 };
 
             }
@@ -116,5 +113,5 @@ fn main() {
         }
     }
 
-    println!("done!");
+    println!("done! {}", traffic_data.len());
 }
