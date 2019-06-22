@@ -1,7 +1,7 @@
 use std::fs::File;
 
 struct TrafficData {
-    lhrs: u32, // 	Linear Highway Referencing System
+    lhrs: u32, // Linear Highway Referencing System
     os: f32,
     year: u32,
     hwy_number: u32,
@@ -23,28 +23,6 @@ struct TrafficData {
 }
 
 fn main() {
-    let _t = TrafficData {
-        lhrs: 1,
-        os: 0.0,
-        year: 2000,
-        hwy_number: 1,
-        hwy_type: "".to_string(),
-        location_desc: "".to_string(),
-        reg: "".to_string(),
-        section_length: 0.0,
-        connecting_link_length: 0.0,
-        secondary_desc: "".to_string(),
-        travel_pattern: "".to_string(),
-        dhv: 0.0,
-        directional_split: 0.0,
-        aadt: 1,
-        aadt_yearly_change: 0.0,
-        aadt_10_year_change: Some(0.0),
-        sadt: 1,
-        sawdt: 1,
-        wadt: 1,
-    };
-
     let mut traffic_data: Vec<TrafficData> = Vec::new();
 
     let file = File::open("traffic_volumes.csv").unwrap();
@@ -81,16 +59,16 @@ fn main() {
                         os: to_f32(get_data(&record, 1)),
                         year: to_u32(get_data(&record, 2)),
                         hwy_number: to_u32(get_data(&record, 3)),
-                        hwy_type: get_data(&record, 6),
-                        location_desc: get_data(&record, 7),
-                        reg: get_data(&record, 8),
-                        section_length: to_f32(get_data(&record, 9)),
-                        connecting_link_length: to_f32(get_data(&record, 10)),
-                        secondary_desc: get_data(&record, 11),
-                        travel_pattern: get_data(&record, 12),
-                        dhv: 0.0,
-                        directional_split: 0.0,
-                        aadt: 1,
+                        hwy_type: get_data(&record, 5),
+                        location_desc: get_data(&record, 6),
+                        reg: get_data(&record, 7),
+                        section_length: to_f32(get_data(&record, 8)),
+                        connecting_link_length: to_f32(get_data(&record, 9)),
+                        secondary_desc: get_data(&record, 10),
+                        travel_pattern: get_data(&record, 11),
+                        dhv: to_f32(get_data(&record, 12)),
+                        directional_split: to_f32(get_data(&record, 13)),
+                        aadt: to_u32(get_data(&record, 14)),
                         aadt_yearly_change: 0.0,
                         aadt_10_year_change: Some(0.0),
                         sadt: 1,
@@ -104,7 +82,8 @@ fn main() {
                 match result {
                     Ok(traffic_record) => traffic_data.push(traffic_record),
                     _ => {
-                        println!("failed: \n {:?}", record);
+                        println!("failed: \n {:?}", record,);
+                        // println!("{}", get_data(&record, 15));
                     }
                 };
 
