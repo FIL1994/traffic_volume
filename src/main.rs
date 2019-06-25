@@ -35,7 +35,10 @@ fn main() {
         }
 
         fn to_u32(string: String) -> u32 {
-            string.parse::<u32>().unwrap()
+            match string.parse::<u32>() {
+                Ok(val) => val,
+                Err(_) => 1
+            }
         }
 
         fn to_f32(string: String) -> f32 {
@@ -46,7 +49,10 @@ fn main() {
                 None => parseable_string.push_str(".0"),
             };
 
-            parseable_string.parse::<f32>().unwrap()
+            match parseable_string.parse::<f32>() {
+                Ok(val) => val,
+                Err(_) => 0.0
+            }
         }
 
         match result {
@@ -69,11 +75,11 @@ fn main() {
                         dhv: to_f32(get_data(&record, 12)),
                         directional_split: to_f32(get_data(&record, 13)),
                         aadt: to_u32(get_data(&record, 14)),
-                        aadt_yearly_change: 0.0,
+                        aadt_yearly_change: to_f32(get_data(&record, 15)),
                         aadt_10_year_change: Some(0.0),
-                        sadt: 1,
-                        sawdt: 1,
-                        wadt: 1,
+                        sadt: to_u32(get_data(&record, 17)),
+                        sawdt: to_u32(get_data(&record, 18)),
+                        wadt: to_u32(get_data(&record, 19)),
                     };
 
                     traffic_record
