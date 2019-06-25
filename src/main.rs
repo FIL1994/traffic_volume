@@ -1,3 +1,4 @@
+
 use std::fs::File;
 
 struct TrafficData {
@@ -35,13 +36,10 @@ fn main() {
         }
 
         fn to_u32(string: String) -> u32 {
-            match string.parse::<u32>() {
-                Ok(val) => val,
-                Err(_) => 1
-            }
+            string.parse::<u32>().unwrap()
         }
 
-        fn to_f32(string: String) -> f32 {
+        fn to_f32(string: String) -> Result<f32, String> {
             let mut parseable_string = string.clone();
 
             match parseable_string.find(".") {
@@ -50,8 +48,8 @@ fn main() {
             };
 
             match parseable_string.parse::<f32>() {
-                Ok(val) => val,
-                Err(_) => 0.0
+                Ok(val) => Ok(val),
+                Err(_) => Err(String::from("failed to parse string to f32")),
             }
         }
 
@@ -62,21 +60,24 @@ fn main() {
                 let result = panic::catch_unwind(|| {
                     let traffic_record = TrafficData {
                         lhrs: to_u32(get_data(&record, 0)),
-                        os: to_f32(get_data(&record, 1)),
+                        os: to_f32(get_data(&record, 1)).unwrap(),
                         year: to_u32(get_data(&record, 2)),
                         hwy_number: to_u32(get_data(&record, 3)),
                         hwy_type: get_data(&record, 5),
                         location_desc: get_data(&record, 6),
                         reg: get_data(&record, 7),
-                        section_length: to_f32(get_data(&record, 8)),
-                        connecting_link_length: to_f32(get_data(&record, 9)),
+                        section_length: to_f32(get_data(&record, 8)).unwrap(),
+                        connecting_link_length: to_f32(get_data(&record, 9)).unwrap(),
                         secondary_desc: get_data(&record, 10),
                         travel_pattern: get_data(&record, 11),
-                        dhv: to_f32(get_data(&record, 12)),
-                        directional_split: to_f32(get_data(&record, 13)),
+                        dhv: to_f32(get_data(&record, 12)).unwrap(),
+                        directional_split: to_f32(get_data(&record, 13)).unwrap(),
                         aadt: to_u32(get_data(&record, 14)),
-                        aadt_yearly_change: to_f32(get_data(&record, 15)),
-                        aadt_10_year_change: Some(0.0),
+                        aadt_yearly_change: to_f32(get_data(&record, 15)).unwrap(),
+                        aadt_10_year_change: match to_f32(get_data(&record, 16)) {
+                            Ok(val) => Some(val),
+                            Err(_) => None,
+                        },
                         sadt: to_u32(get_data(&record, 17)),
                         sawdt: to_u32(get_data(&record, 18)),
                         wadt: to_u32(get_data(&record, 19)),
@@ -94,7 +95,7 @@ fn main() {
                 };
 
             }
-            Err(_error) => {}
+            Err(_) => {}
         }
     }
 
