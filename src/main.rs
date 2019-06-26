@@ -1,6 +1,3 @@
-#[macro_use(bson, doc)]
-extern crate bson;
-
 use mongodb::db::ThreadedDatabase;
 use mongodb::{Client, ThreadedClient};
 
@@ -122,17 +119,15 @@ fn get_traffic_data() -> Vec<bson::Document> {
 
 fn main() {
     let traffic_data: Vec<bson::Document> = get_traffic_data();
-    println!("fetched {} records!", traffic_data.len());
+    println!("Found {} records", traffic_data.len());
 
-    let client: std::sync::Arc<mongodb::ClientInner> =
-        Client::connect("localhost", 27017).expect("failed to initialize client");
+    let client = Client::connect("localhost", 27017).expect("failed to initialize client");
 
     let db = client.db("mydb");
-    let traffic_col: mongodb::coll::Collection = db.collection("traffic");
+    let traffic_col = db.collection("traffic");
 
     // inserting everything at once will fail
     for chunk in traffic_data.chunks(1000) {
         traffic_col.insert_many(chunk.to_vec(), None).unwrap();
     }
-    println!("done");
 }
