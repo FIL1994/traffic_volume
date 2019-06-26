@@ -23,7 +23,7 @@ struct TrafficData {
     wadt: u32,
 }
 
-fn main() {
+fn get_traffic_data() -> Vec<TrafficData> {
     let mut traffic_data: Vec<TrafficData> = Vec::new();
 
     let file = File::open("traffic_volumes.csv").unwrap();
@@ -99,5 +99,11 @@ fn main() {
         }
     }
 
+    traffic_data
+
+}
+
+fn main() {
+    let traffic_data = get_traffic_data();
     println!("done! {}", traffic_data.len());
 }
