@@ -1,11 +1,18 @@
+#[macro_use(bson, doc)]
+extern crate bson;
 
+use mongodb::db::ThreadedDatabase;
+use mongodb::{Client, ThreadedClient};
+
+use serde::{Deserialize, Serialize};
 use std::fs::File;
 
+#[derive(Serialize, Deserialize, Debug)]
 struct TrafficData {
-    lhrs: u32, // Linear Highway Referencing System
+    lhrs: i32, // Linear Highway Referencing System
     os: f32,
-    year: u32,
-    hwy_number: u32,
+    year: i32,
+    hwy_number: i32,
     hwy_type: String,
     location_desc: String,
     reg: String,
@@ -15,16 +22,16 @@ struct TrafficData {
     travel_pattern: String,
     dhv: f32, // design hour volume
     directional_split: f32,
-    aadt: u32,
+    aadt: i32,
     aadt_yearly_change: f32,
     aadt_10_year_change: Option<f32>,
-    sadt: u32,
-    sawdt: u32,
-    wadt: u32,
+    sadt: i32,
+    sawdt: i32,
+    wadt: i32,
 }
 
-fn get_traffic_data() -> Vec<TrafficData> {
-    let mut traffic_data: Vec<TrafficData> = Vec::new();
+fn get_traffic_data() -> Vec<bson::Document> {
+    let mut traffic_data: Vec<bson::Document> = Vec::new();
 
     let file = File::open("traffic_volumes.csv").unwrap();
     let mut rdr = csv::ReaderBuilder::new().flexible(true).from_reader(file);
@@ -35,8 +42,8 @@ fn get_traffic_data() -> Vec<TrafficData> {
             record.get(index).unwrap().trim().to_string()
         }
 
-        fn to_u32(string: String) -> u32 {
-            string.parse::<u32>().unwrap()
+        fn to_i32(string: String) -> i32 {
+            string.parse::<i32>().unwrap()
         }
 
         fn to_f32(string: String) -> Result<f32, String> {
@@ -59,10 +66,10 @@ fn get_traffic_data() -> Vec<TrafficData> {
 
                 let result = panic::catch_unwind(|| {
                     let traffic_record = TrafficData {
-                        lhrs: to_u32(get_data(&record, 0)),
+                        lhrs: to_i32(get_data(&record, 0)),
                         os: to_f32(get_data(&record, 1)).unwrap(),
-                        year: to_u32(get_data(&record, 2)),
-                        hwy_number: to_u32(get_data(&record, 3)),
+                        year: to_i32(get_data(&record, 2)),
+                        hwy_number: to_i32(get_data(&record, 3)),
                         hwy_type: get_data(&record, 5),
                         location_desc: get_data(&record, 6),
                         reg: get_data(&record, 7),
@@ -72,25 +79,35 @@ fn get_traffic_data() -> Vec<TrafficData> {
                         travel_pattern: get_data(&record, 11),
                         dhv: to_f32(get_data(&record, 12)).unwrap(),
                         directional_split: to_f32(get_data(&record, 13)).unwrap(),
-                        aadt: to_u32(get_data(&record, 14)),
+                        aadt: to_i32(get_data(&record, 14)),
                         aadt_yearly_change: to_f32(get_data(&record, 15)).unwrap(),
                         aadt_10_year_change: match to_f32(get_data(&record, 16)) {
                             Ok(val) => Some(val),
                             Err(_) => None,
                         },
-                        sadt: to_u32(get_data(&record, 17)),
-                        sawdt: to_u32(get_data(&record, 18)),
-                        wadt: to_u32(get_data(&record, 19)),
+                        sadt: to_i32(get_data(&record, 17)),
+                        sawdt: to_i32(get_data(&record, 18)),
+                        wadt: to_i32(get_data(&record, 19)),
                     };
 
                     traffic_record
                 });
 
                 match result {
-                    Ok(traffic_record) => traffic_data.push(traffic_record),
+                    Ok(traffic_record) => {
+                        let serialized_data = match bson::to_bson(&traffic_record) {
+                            Ok(bson) => bson,
+                            Err(_) => {
+                                continue;
+                            }
+                        };
+
+                        if let bson::Bson::Document(document) = serialized_data {
+                            traffic_data.push(document);
+                        }
+                    }
                     _ => {
                         println!("failed: \n {:?}", record,);
-                        // println!("{}", get_data(&record, 15));
                     }
                 };
 
@@ -104,6 +121,18 @@ fn get_traffic_data() -> Vec<TrafficData> {
 }
 
 fn main() {
-    let traffic_data = get_traffic_data();
-    println!("done! {}", traffic_data.len());
+    let traffic_data: Vec<bson::Document> = get_traffic_data();
+    println!("fetched {} records!", traffic_data.len());
+
+    let client: std::sync::Arc<mongodb::ClientInner> =
+        Client::connect("localhost", 27017).expect("failed to initialize client");
+
+    let db = client.db("mydb");
+    let traffic_col: mongodb::coll::Collection = db.collection("traffic");
+
+    // inserting everything at once will fail
+    for chunk in traffic_data.chunks(1000) {
+        traffic_col.insert_many(chunk.to_vec(), None).unwrap();
+    }
+    println!("done");
 }
