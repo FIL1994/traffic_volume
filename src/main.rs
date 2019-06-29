@@ -97,97 +97,94 @@ fn get_traffic_data() -> Vec<bson::Document> {
             Ok(record) => {
                 use std::panic;
 
-                    let lhrs = to_i32(get_data(&record, 0));
+                let lhrs = to_i32(get_data(&record, 0));
 
-                    match traffic.iter_mut().find(|t| t.lhrs == lhrs) {
-                        Some(traffic_record) => {
-                            let travel_pattern = get_data(&record, 11);
-                            let record_option = &traffic_record.travel_patterns.get(&travel_pattern);
-                            match record_option {
-                                Some(travel_pattern_data) => {
-                                    let years = &travel_pattern_data.years;
+                match traffic.iter_mut().find(|t| t.lhrs == lhrs) {
+                    Some(traffic_record) => {
+                        let travel_pattern = get_data(&record, 11);
+                        let record_option = &traffic_record.travel_patterns.get(&travel_pattern);
+                        match record_option {
+                            Some(travel_pattern_data) => {
+                                let years = &travel_pattern_data.years;
 
-                            //         years.push(
-                            //             TrafficYearData {
-                            //     year: to_i32(get_data(&record, 2)),
-                            //     dhv: to_f32(get_data(&record, 12)).unwrap(),
-                            //     directional_split: to_f32(get_data(&record, 13)).unwrap(),
-                            //     aadt: to_i32(get_data(&record, 14)),
-                            //     aadt_yearly_change: to_f32(get_data(&record, 15)).unwrap(),
-                            //     aadt_10_year_change: match to_f32(get_data(&record, 16)) {
-                            //         Ok(val) => Some(val),
-                            //         Err(_) => None,
-                            //     },
-                            //     sadt: to_i32(get_data(&record, 17)),
-                            //     sawdt: to_i32(get_data(&record, 18)),
-                            //     wadt: to_i32(get_data(&record, 19)),
-                            // }
-                            //         );
-                                }
-                                _ => {}
+                                //         years.push(
+                                //             TrafficYearData {
+                                //     year: to_i32(get_data(&record, 2)),
+                                //     dhv: to_f32(get_data(&record, 12)).unwrap(),
+                                //     directional_split: to_f32(get_data(&record, 13)).unwrap(),
+                                //     aadt: to_i32(get_data(&record, 14)),
+                                //     aadt_yearly_change: to_f32(get_data(&record, 15)).unwrap(),
+                                //     aadt_10_year_change: match to_f32(get_data(&record, 16)) {
+                                //         Ok(val) => Some(val),
+                                //         Err(_) => None,
+                                //     },
+                                //     sadt: to_i32(get_data(&record, 17)),
+                                //     sawdt: to_i32(get_data(&record, 18)),
+                                //     wadt: to_i32(get_data(&record, 19)),
+                                // }
+                                //         );
                             }
+                            _ => {}
                         }
-                        _ => {
-                            let mut traffic_data = TrafficData {
-                                lhrs: lhrs,
-                                hwy_number: to_i32(get_data(&record, 3)),
-                                hwy_type: get_data(&record, 5),
-                                location_desc: get_data(&record, 6),
-                                reg: get_data(&record, 7),
-                                section_length: to_f32(get_data(&record, 8)).unwrap(),
-                                connecting_link_length: to_f32(get_data(&record, 9)).unwrap(),
-                                secondary_desc: get_data(&record, 10),
-                                travel_patterns: HashMap::new(),
-                            };
+                    }
+                    _ => {
+                        let mut traffic_data = TrafficData {
+                            lhrs: lhrs,
+                            hwy_number: to_i32(get_data(&record, 3)),
+                            hwy_type: get_data(&record, 5),
+                            location_desc: get_data(&record, 6),
+                            reg: get_data(&record, 7),
+                            section_length: to_f32(get_data(&record, 8)).unwrap(),
+                            connecting_link_length: to_f32(get_data(&record, 9)).unwrap(),
+                            secondary_desc: get_data(&record, 10),
+                            travel_patterns: HashMap::new(),
+                        };
 
-                            let years: Vec<TrafficYearData> = vec![TrafficYearData {
-                                year: to_i32(get_data(&record, 2)),
-                                dhv: to_f32(get_data(&record, 12)).unwrap(),
-                                directional_split: to_f32(get_data(&record, 13)).unwrap(),
-                                aadt: to_i32(get_data(&record, 14)),
-                                aadt_yearly_change: to_f32(get_data(&record, 15)).unwrap(),
-                                aadt_10_year_change: match to_f32(get_data(&record, 16)) {
-                                    Ok(val) => Some(val),
-                                    Err(_) => None,
-                                },
-                                sadt: to_i32(get_data(&record, 17)),
-                                sawdt: to_i32(get_data(&record, 18)),
-                                wadt: to_i32(get_data(&record, 19)),
-                            }];
+                        let years: Vec<TrafficYearData> = vec![TrafficYearData {
+                            year: to_i32(get_data(&record, 2)),
+                            dhv: to_f32(get_data(&record, 12)).unwrap(),
+                            directional_split: to_f32(get_data(&record, 13)).unwrap(),
+                            aadt: to_i32(get_data(&record, 14)),
+                            aadt_yearly_change: to_f32(get_data(&record, 15)).unwrap(),
+                            aadt_10_year_change: match to_f32(get_data(&record, 16)) {
+                                Ok(val) => Some(val),
+                                Err(_) => None,
+                            },
+                            sadt: to_i32(get_data(&record, 17)),
+                            sawdt: to_i32(get_data(&record, 18)),
+                            wadt: to_i32(get_data(&record, 19)),
+                        }];
 
-                            traffic_data
-                                .travel_patterns
-                                .insert(get_data(&record, 11), TravelPatternData { years: years });
-                        }
-                    };
+                        traffic_data
+                            .travel_patterns
+                            .insert(get_data(&record, 11), TravelPatternData { years: years });
+                    }
+                };
 
-
-                    let traffic_record = TrafficDataRecord {
-                        lhrs: to_i32(get_data(&record, 0)),
-                        os: to_f32(get_data(&record, 1)).unwrap(),
-                        year: to_i32(get_data(&record, 2)),
-                        hwy_number: to_i32(get_data(&record, 3)),
-                        hwy_type: get_data(&record, 5),
-                        location_desc: get_data(&record, 6),
-                        reg: get_data(&record, 7),
-                        section_length: to_f32(get_data(&record, 8)).unwrap(),
-                        connecting_link_length: to_f32(get_data(&record, 9)).unwrap(),
-                        secondary_desc: get_data(&record, 10),
-                        travel_pattern: get_data(&record, 11),
-                        dhv: to_f32(get_data(&record, 12)).unwrap(),
-                        directional_split: to_f32(get_data(&record, 13)).unwrap(),
-                        aadt: to_i32(get_data(&record, 14)),
-                        aadt_yearly_change: to_f32(get_data(&record, 15)).unwrap(),
-                        aadt_10_year_change: match to_f32(get_data(&record, 16)) {
-                            Ok(val) => Some(val),
-                            Err(_) => None,
-                        },
-                        sadt: to_i32(get_data(&record, 17)),
-                        sawdt: to_i32(get_data(&record, 18)),
-                        wadt: to_i32(get_data(&record, 19)),
-                    };
-
-
+                let traffic_record = TrafficDataRecord {
+                    lhrs: to_i32(get_data(&record, 0)),
+                    os: to_f32(get_data(&record, 1)).unwrap(),
+                    year: to_i32(get_data(&record, 2)),
+                    hwy_number: to_i32(get_data(&record, 3)),
+                    hwy_type: get_data(&record, 5),
+                    location_desc: get_data(&record, 6),
+                    reg: get_data(&record, 7),
+                    section_length: to_f32(get_data(&record, 8)).unwrap(),
+                    connecting_link_length: to_f32(get_data(&record, 9)).unwrap(),
+                    secondary_desc: get_data(&record, 10),
+                    travel_pattern: get_data(&record, 11),
+                    dhv: to_f32(get_data(&record, 12)).unwrap(),
+                    directional_split: to_f32(get_data(&record, 13)).unwrap(),
+                    aadt: to_i32(get_data(&record, 14)),
+                    aadt_yearly_change: to_f32(get_data(&record, 15)).unwrap(),
+                    aadt_10_year_change: match to_f32(get_data(&record, 16)) {
+                        Ok(val) => Some(val),
+                        Err(_) => None,
+                    },
+                    sadt: to_i32(get_data(&record, 17)),
+                    sawdt: to_i32(get_data(&record, 18)),
+                    wadt: to_i32(get_data(&record, 19)),
+                };
             }
             Err(_) => {}
         }
