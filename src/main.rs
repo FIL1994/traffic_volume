@@ -2,10 +2,12 @@ use mongodb::db::ThreadedDatabase;
 use mongodb::{Client, ThreadedClient};
 
 use serde::{Deserialize, Serialize};
+
+use std::collections::HashMap;
 use std::fs::File;
 
 #[derive(Serialize, Deserialize, Debug)]
-struct TrafficData {
+struct TrafficDataRecord {
     lhrs: i32, // Linear Highway Referencing System
     os: f32,
     year: i32,
@@ -18,6 +20,32 @@ struct TrafficData {
     secondary_desc: String, // (for Connecting Links, Regional Boundarys,etc)
     travel_pattern: String,
     dhv: f32, // design hour volume
+    directional_split: f32,
+    aadt: i32,
+    aadt_yearly_change: f32,
+    aadt_10_year_change: Option<f32>,
+    sadt: i32,
+    sawdt: i32,
+    wadt: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct TrafficData {
+    lhrs: i32,
+    hwy_number: i32,
+    hwy_type: String,
+    location_desc: String,
+    reg: String,
+    section_length: f32,
+    connecting_link_length: f32,
+    secondary_desc: String,
+    travel_patterns: HashMap<String, TravelPatternData>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct TravelPatternData {
+    year: i32,
+    dhv: f32,
     directional_split: f32,
     aadt: i32,
     aadt_yearly_change: f32,
@@ -62,7 +90,7 @@ fn get_traffic_data() -> Vec<bson::Document> {
                 use std::panic;
 
                 let result = panic::catch_unwind(|| {
-                    let traffic_record = TrafficData {
+                    let traffic_record = TrafficDataRecord {
                         lhrs: to_i32(get_data(&record, 0)),
                         os: to_f32(get_data(&record, 1)).unwrap(),
                         year: to_i32(get_data(&record, 2)),
