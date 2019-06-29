@@ -29,6 +29,24 @@ struct TrafficDataRecord {
     wadt: i32,
 }
 
+#[derive(Serialize, Deserialize, Copy, Clone, Debug)]
+struct TrafficYearData {
+    year: i32,
+    dhv: f32,
+    directional_split: f32,
+    aadt: i32,
+    aadt_yearly_change: f32,
+    aadt_10_year_change: Option<f32>,
+    sadt: i32,
+    sawdt: i32,
+    wadt: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct TravelPatternData {
+    years: Vec<TrafficYearData>,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 struct TrafficData {
     lhrs: i32,
@@ -42,21 +60,11 @@ struct TrafficData {
     travel_patterns: HashMap<String, TravelPatternData>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct TravelPatternData {
-    year: i32,
-    dhv: f32,
-    directional_split: f32,
-    aadt: i32,
-    aadt_yearly_change: f32,
-    aadt_10_year_change: Option<f32>,
-    sadt: i32,
-    sawdt: i32,
-    wadt: i32,
-}
 
 fn get_traffic_data() -> Vec<bson::Document> {
     let mut traffic_data: Vec<bson::Document> = Vec::new();
+
+    let mut traffic: Vec<TrafficData> = Vec::new();
 
     let file = File::open("traffic_volumes.csv").unwrap();
     let mut rdr = csv::ReaderBuilder::new().flexible(true).from_reader(file);
@@ -89,7 +97,71 @@ fn get_traffic_data() -> Vec<bson::Document> {
             Ok(record) => {
                 use std::panic;
 
-                let result = panic::catch_unwind(|| {
+                    let lhrs = to_i32(get_data(&record, 0));
+
+                    match traffic.iter_mut().find(|t| t.lhrs == lhrs) {
+                        Some(traffic_record) => {
+                            let travel_pattern = get_data(&record, 11);
+                            let record_option = &traffic_record.travel_patterns.get(&travel_pattern);
+                            match record_option {
+                                Some(travel_pattern_data) => {
+                                    let years = &travel_pattern_data.years;
+
+                            //         years.push(
+                            //             TrafficYearData {
+                            //     year: to_i32(get_data(&record, 2)),
+                            //     dhv: to_f32(get_data(&record, 12)).unwrap(),
+                            //     directional_split: to_f32(get_data(&record, 13)).unwrap(),
+                            //     aadt: to_i32(get_data(&record, 14)),
+                            //     aadt_yearly_change: to_f32(get_data(&record, 15)).unwrap(),
+                            //     aadt_10_year_change: match to_f32(get_data(&record, 16)) {
+                            //         Ok(val) => Some(val),
+                            //         Err(_) => None,
+                            //     },
+                            //     sadt: to_i32(get_data(&record, 17)),
+                            //     sawdt: to_i32(get_data(&record, 18)),
+                            //     wadt: to_i32(get_data(&record, 19)),
+                            // }
+                            //         );
+                                }
+                                _ => {}
+                            }
+                        }
+                        _ => {
+                            let mut traffic_data = TrafficData {
+                                lhrs: lhrs,
+                                hwy_number: to_i32(get_data(&record, 3)),
+                                hwy_type: get_data(&record, 5),
+                                location_desc: get_data(&record, 6),
+                                reg: get_data(&record, 7),
+                                section_length: to_f32(get_data(&record, 8)).unwrap(),
+                                connecting_link_length: to_f32(get_data(&record, 9)).unwrap(),
+                                secondary_desc: get_data(&record, 10),
+                                travel_patterns: HashMap::new(),
+                            };
+
+                            let years: Vec<TrafficYearData> = vec![TrafficYearData {
+                                year: to_i32(get_data(&record, 2)),
+                                dhv: to_f32(get_data(&record, 12)).unwrap(),
+                                directional_split: to_f32(get_data(&record, 13)).unwrap(),
+                                aadt: to_i32(get_data(&record, 14)),
+                                aadt_yearly_change: to_f32(get_data(&record, 15)).unwrap(),
+                                aadt_10_year_change: match to_f32(get_data(&record, 16)) {
+                                    Ok(val) => Some(val),
+                                    Err(_) => None,
+                                },
+                                sadt: to_i32(get_data(&record, 17)),
+                                sawdt: to_i32(get_data(&record, 18)),
+                                wadt: to_i32(get_data(&record, 19)),
+                            }];
+
+                            traffic_data
+                                .travel_patterns
+                                .insert(get_data(&record, 11), TravelPatternData { years: years });
+                        }
+                    };
+
+
                     let traffic_record = TrafficDataRecord {
                         lhrs: to_i32(get_data(&record, 0)),
                         os: to_f32(get_data(&record, 1)).unwrap(),
@@ -115,26 +187,6 @@ fn get_traffic_data() -> Vec<bson::Document> {
                         wadt: to_i32(get_data(&record, 19)),
                     };
 
-                    traffic_record
-                });
-
-                match result {
-                    Ok(traffic_record) => {
-                        let serialized_data = match bson::to_bson(&traffic_record) {
-                            Ok(bson) => bson,
-                            Err(_) => {
-                                continue;
-                            }
-                        };
-
-                        if let bson::Bson::Document(document) = serialized_data {
-                            traffic_data.push(document);
-                        }
-                    }
-                    _ => {
-                        println!("failed: \n {:?}", record,);
-                    }
-                };
 
             }
             Err(_) => {}
