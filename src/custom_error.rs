@@ -1,18 +1,20 @@
-use std::num::{ParseFloatError, ParseIntError};
-use std::{error, fmt};
-
+use std::{
+    error::Error,
+    fmt::{self, Display, Formatter},
+    num::{ParseFloatError, ParseIntError},
+};
 
 #[derive(Debug, Clone)]
 pub struct CustomError;
 
-impl fmt::Display for CustomError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl Display for CustomError {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "an error occurred")
     }
 }
 
-impl error::Error for CustomError {
-    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+impl Error for CustomError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         None
     }
 }

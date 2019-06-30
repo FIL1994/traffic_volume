@@ -4,37 +4,23 @@ use mongodb::{Client, ThreadedClient};
 use std::collections::HashMap;
 use std::fs::File;
 
-use std::num::{ParseFloatError, ParseIntError};
-
 mod custom_error;
 use custom_error::CustomError;
 
 mod traffic;
 use traffic::{TrafficData, TrafficYearData, TravelPatternData};
 
+mod convert_to_num;
+use convert_to_num::{to_f32, to_i32};
+
+fn get_data(record: &csv::StringRecord, index: usize) -> String {
+    record.get(index).unwrap().trim().to_string()
+}
+
 fn add_record(
     traffic: &mut Vec<TrafficData>,
     record: csv::StringRecord,
 ) -> Result<(), CustomError> {
-    fn get_data(record: &csv::StringRecord, index: usize) -> String {
-        record.get(index).unwrap().trim().to_string()
-    }
-
-    fn to_i32(string: String) -> Result<i32, ParseIntError> {
-        Ok(string.parse::<i32>())?
-    }
-
-    fn to_f32(string: String) -> Result<f32, ParseFloatError> {
-        let mut parseable_string = string.clone();
-
-        match parseable_string.find(".") {
-            Some(_v) => (),
-            None => parseable_string.push_str(".0"),
-        };
-
-        Ok(parseable_string.parse::<f32>())?
-    }
-
     let lhrs = to_i32(get_data(&record, 0))?;
 
     match traffic.iter_mut().find(|t| t.lhrs == lhrs) {
@@ -53,6 +39,7 @@ fn add_record(
                 sawdt: to_i32(get_data(&record, 18))?,
                 wadt: to_i32(get_data(&record, 19))?,
             };
+
             let travel_pattern_key = get_data(&record, 11);
             match traffic_record.travel_patterns.get_mut(&travel_pattern_key) {
                 Some(travel_pattern_data) => {
@@ -110,9 +97,11 @@ fn add_record(
 fn get_traffic_data() -> Vec<bson::Document> {
     let mut traffic: Vec<TrafficData> = Vec::new();
 
-    let file = File::open("traffic_volumes.csv").unwrap();
-    let mut rdr = csv::ReaderBuilder::new().flexible(true).from_reader(file);
-    for result in rdr.records() {
+    for result in csv::ReaderBuilder::new()
+        .flexible(true)
+        .from_reader(File::open("traffic_volumes.csv").unwrap())
+        .records()
+    {
         match result {
             Ok(record) => match add_record(&mut traffic, record) {
                 _ => {}
@@ -131,9 +120,7 @@ fn get_traffic_data() -> Vec<bson::Document> {
                     None
                 }
             }
-            Err(_) => {
-                return None;
-            }
+            Err(_) => None,
         })
         .collect::<Vec<bson::Document>>()
 }

@@ -31,3 +31,4 @@ pub struct TrafficData {
     pub secondary_desc: String,
     pub travel_patterns: HashMap<String, TravelPatternData>,
 }
+
