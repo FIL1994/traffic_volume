@@ -61,8 +61,6 @@ struct TrafficData {
 }
 
 fn get_traffic_data() -> Vec<bson::Document> {
-    let mut traffic_data_records: Vec<bson::Document> = Vec::new();
-
     let mut traffic: Vec<TrafficData> = Vec::new();
 
     let file = File::open("test.csv").unwrap();
@@ -166,22 +164,34 @@ fn get_traffic_data() -> Vec<bson::Document> {
         }
     }
 
-    println!("len {}", traffic.len());
-
-    traffic_data_records
+    traffic
+        .iter()
+        .filter_map(|record| match bson::to_bson(&record) {
+            Ok(serialized_data) => {
+                if let bson::Bson::Document(document) = serialized_data {
+                    Some(document)
+                } else {
+                    None
+                }
+            }
+            Err(_) => {
+                return None;
+            }
+        })
+        .collect::<Vec<bson::Document>>()
 }
 
 fn main() {
     let traffic_data: Vec<bson::Document> = get_traffic_data();
     println!("Found {} records", traffic_data.len());
 
-    // let client = Client::connect("localhost", 27017).expect("failed to initialize client");
+    let client = Client::connect("localhost", 27017).expect("failed to initialize client");
 
-    // let db = client.db("mydb");
-    // let traffic_col = db.collection("traffic");
+    let db = client.db("mydb");
+    let traffic_col = db.collection("traffic");
 
-    // // inserting everything at once will fail
-    // for chunk in traffic_data.chunks(1000) {
-    //     traffic_col.insert_many(chunk.to_vec(), None).unwrap();
-    // }
+    // inserting everything at once will fail
+    for chunk in traffic_data.chunks(1000) {
+        traffic_col.insert_many(chunk.to_vec(), None).unwrap();
+    }
 }
