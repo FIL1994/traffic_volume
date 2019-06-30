@@ -47,18 +47,6 @@ struct TravelPatternData {
     years: Vec<TrafficYearData>,
 }
 
-// impl Clone for TravelPatternData {
-//     fn clone(&self) -> Self {
-//         let mut copy = Vec::new();
-
-//         for year in self.years.iter() {
-//             copy.push(year.clone());
-//         }
-
-//         TravelPatternData { years: copy }
-//     }
-// }
-
 #[derive(Serialize, Deserialize, Debug)]
 struct TrafficData {
     lhrs: i32,
@@ -72,19 +60,8 @@ struct TrafficData {
     travel_patterns: HashMap<String, TravelPatternData>,
 }
 
-// impl TrafficData {
-//     fn copy_travel_patterns(&self) -> HashMap<String, TravelPatternData> {
-//         let mut copy = HashMap::new();
-//         for (k, v) in self.travel_patterns.iter() {
-//             copy.insert(k.to_string(), v.clone());
-//         }
-//         copy
-//     }
-// }
-
-
 fn get_traffic_data() -> Vec<bson::Document> {
-    let mut traffic_data: Vec<bson::Document> = Vec::new();
+    let mut traffic_data_records: Vec<bson::Document> = Vec::new();
 
     let mut traffic: Vec<TrafficData> = Vec::new();
 
@@ -179,53 +156,32 @@ fn get_traffic_data() -> Vec<bson::Document> {
                         traffic_data
                             .travel_patterns
                             .insert(get_data(&record, 11), TravelPatternData { years: years });
+
+                        traffic.push(traffic_data)
                     }
                 };
 
-                let _traffic_record = TrafficDataRecord {
-                    lhrs: to_i32(get_data(&record, 0)).unwrap(),
-                    os: to_f32(get_data(&record, 1)).unwrap(),
-                    year: to_i32(get_data(&record, 2)).unwrap(),
-                    hwy_number: to_i32(get_data(&record, 3)).unwrap(),
-                    hwy_type: get_data(&record, 5),
-                    location_desc: get_data(&record, 6),
-                    reg: get_data(&record, 7),
-                    section_length: to_f32(get_data(&record, 8)).unwrap(),
-                    connecting_link_length: to_f32(get_data(&record, 9)).unwrap(),
-                    secondary_desc: get_data(&record, 10),
-                    travel_pattern: get_data(&record, 11),
-                    dhv: to_f32(get_data(&record, 12)).unwrap(),
-                    directional_split: to_f32(get_data(&record, 13)).unwrap(),
-                    aadt: to_i32(get_data(&record, 14)).unwrap(),
-                    aadt_yearly_change: to_f32(get_data(&record, 15)).unwrap(),
-                    aadt_10_year_change: match to_f32(get_data(&record, 16)) {
-                        Ok(val) => Some(val),
-                        Err(_) => None,
-                    },
-                    sadt: to_i32(get_data(&record, 17)).unwrap(),
-                    sawdt: to_i32(get_data(&record, 18)).unwrap(),
-                    wadt: to_i32(get_data(&record, 19)).unwrap(),
-                };
             }
             Err(_) => {}
         }
     }
 
-    traffic_data
+    println!("len {}", traffic.len());
 
+    traffic_data_records
 }
 
 fn main() {
     let traffic_data: Vec<bson::Document> = get_traffic_data();
     println!("Found {} records", traffic_data.len());
 
-    let client = Client::connect("localhost", 27017).expect("failed to initialize client");
+    // let client = Client::connect("localhost", 27017).expect("failed to initialize client");
 
-    let db = client.db("mydb");
-    let traffic_col = db.collection("traffic");
+    // let db = client.db("mydb");
+    // let traffic_col = db.collection("traffic");
 
-    // inserting everything at once will fail
-    for chunk in traffic_data.chunks(1000) {
-        traffic_col.insert_many(chunk.to_vec(), None).unwrap();
-    }
+    // // inserting everything at once will fail
+    // for chunk in traffic_data.chunks(1000) {
+    //     traffic_col.insert_many(chunk.to_vec(), None).unwrap();
+    // }
 }
