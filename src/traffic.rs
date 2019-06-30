@@ -32,3 +32,16 @@ pub struct TrafficData {
     pub travel_patterns: HashMap<String, TravelPatternData>,
 }
 
+impl TrafficData {
+    pub fn add_year(&mut self, key: String, year: TrafficYearData) {
+        match self.travel_patterns.get_mut(&key) {
+            Some(travel_pattern_data) => {
+                travel_pattern_data.years.push(year);
+            }
+            _ => {
+                self.travel_patterns
+                    .insert(key, TravelPatternData { years: vec![year] });
+            }
+        }
+    }
+}

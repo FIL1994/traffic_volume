@@ -8,7 +8,7 @@ mod custom_error;
 use custom_error::CustomError;
 
 mod traffic;
-use traffic::{TrafficData, TrafficYearData, TravelPatternData};
+use traffic::{TrafficData, TrafficYearData};
 
 mod convert_to_num;
 use convert_to_num::{to_f32, to_i32};
@@ -25,35 +25,25 @@ fn add_record(
 
     match traffic.iter_mut().find(|t| t.lhrs == lhrs) {
         Some(traffic_record) => {
-            let year_record = TrafficYearData {
-                year: to_i32(get_data(&record, 2))?,
-                dhv: to_f32(get_data(&record, 12))?,
-                directional_split: to_f32(get_data(&record, 13))?,
-                aadt: to_i32(get_data(&record, 14))?,
-                aadt_yearly_change: to_f32(get_data(&record, 15))?,
-                aadt_10_year_change: match to_f32(get_data(&record, 16)) {
-                    Ok(val) => Some(val),
-                    Err(_) => None,
-                },
-                sadt: to_i32(get_data(&record, 17))?,
-                sawdt: to_i32(get_data(&record, 18))?,
-                wadt: to_i32(get_data(&record, 19))?,
-            };
+            let key = get_data(&record, 11);
 
-            let travel_pattern_key = get_data(&record, 11);
-            match traffic_record.travel_patterns.get_mut(&travel_pattern_key) {
-                Some(travel_pattern_data) => {
-                    travel_pattern_data.years.push(year_record);
-                }
-                _ => {
-                    traffic_record.travel_patterns.insert(
-                        travel_pattern_key,
-                        TravelPatternData {
-                            years: vec![year_record],
-                        },
-                    );
-                }
-            }
+            traffic_record.add_year(
+                key,
+                TrafficYearData {
+                    year: to_i32(get_data(&record, 2))?,
+                    dhv: to_f32(get_data(&record, 12))?,
+                    directional_split: to_f32(get_data(&record, 13))?,
+                    aadt: to_i32(get_data(&record, 14))?,
+                    aadt_yearly_change: to_f32(get_data(&record, 15))?,
+                    aadt_10_year_change: match to_f32(get_data(&record, 16)) {
+                        Ok(val) => Some(val),
+                        Err(_) => None,
+                    },
+                    sadt: to_i32(get_data(&record, 17))?,
+                    sawdt: to_i32(get_data(&record, 18))?,
+                    wadt: to_i32(get_data(&record, 19))?,
+                },
+            );
         }
         _ => {
             let mut traffic_data = TrafficData {
@@ -68,24 +58,23 @@ fn add_record(
                 travel_patterns: HashMap::new(),
             };
 
-            let years: Vec<TrafficYearData> = vec![TrafficYearData {
-                year: to_i32(get_data(&record, 2))?,
-                dhv: to_f32(get_data(&record, 12))?,
-                directional_split: to_f32(get_data(&record, 13))?,
-                aadt: to_i32(get_data(&record, 14))?,
-                aadt_yearly_change: to_f32(get_data(&record, 15))?,
-                aadt_10_year_change: match to_f32(get_data(&record, 16)) {
-                    Ok(val) => Some(val),
-                    Err(_) => None,
+            traffic_data.add_year(
+                get_data(&record, 11),
+                TrafficYearData {
+                    year: to_i32(get_data(&record, 2))?,
+                    dhv: to_f32(get_data(&record, 12))?,
+                    directional_split: to_f32(get_data(&record, 13))?,
+                    aadt: to_i32(get_data(&record, 14))?,
+                    aadt_yearly_change: to_f32(get_data(&record, 15))?,
+                    aadt_10_year_change: match to_f32(get_data(&record, 16)) {
+                        Ok(val) => Some(val),
+                        Err(_) => None,
+                    },
+                    sadt: to_i32(get_data(&record, 17))?,
+                    sawdt: to_i32(get_data(&record, 18))?,
+                    wadt: to_i32(get_data(&record, 19))?,
                 },
-                sadt: to_i32(get_data(&record, 17))?,
-                sawdt: to_i32(get_data(&record, 18))?,
-                wadt: to_i32(get_data(&record, 19))?,
-            }];
-
-            traffic_data
-                .travel_patterns
-                .insert(get_data(&record, 11), TravelPatternData { years: years });
+            );
 
             traffic.push(traffic_data)
         }
