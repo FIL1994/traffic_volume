@@ -16,7 +16,7 @@ pub struct TrafficYearData {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TravelPatternData {
-    pub years: Vec<TrafficYearData>,
+    years: Vec<TrafficYearData>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

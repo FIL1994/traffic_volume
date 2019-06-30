@@ -10,8 +10,8 @@ use custom_error::CustomError;
 mod traffic;
 use traffic::{TrafficData, TrafficYearData};
 
-mod convert_to_num;
-use convert_to_num::{to_f32, to_i32};
+mod string_to_num;
+use string_to_num::{to_f32, to_i32};
 
 fn get_data(record: &csv::StringRecord, index: usize) -> String {
     record.get(index).unwrap().trim().to_string()
