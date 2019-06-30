@@ -113,23 +113,23 @@ fn add_record(
         Ok(parseable_string.parse::<f32>())?
     }
 
-    let lhrs = to_i32(get_data(&record, 0)).unwrap();
+    let lhrs = to_i32(get_data(&record, 0))?;
 
     match traffic.iter_mut().find(|t| t.lhrs == lhrs) {
         Some(traffic_record) => {
             let year_record = TrafficYearData {
                 year: to_i32(get_data(&record, 2))?,
-                dhv: to_f32(get_data(&record, 12)).unwrap(),
-                directional_split: to_f32(get_data(&record, 13)).unwrap(),
-                aadt: to_i32(get_data(&record, 14)).unwrap(),
-                aadt_yearly_change: to_f32(get_data(&record, 15)).unwrap(),
+                dhv: to_f32(get_data(&record, 12))?,
+                directional_split: to_f32(get_data(&record, 13))?,
+                aadt: to_i32(get_data(&record, 14))?,
+                aadt_yearly_change: to_f32(get_data(&record, 15))?,
                 aadt_10_year_change: match to_f32(get_data(&record, 16)) {
                     Ok(val) => Some(val),
                     Err(_) => None,
                 },
-                sadt: to_i32(get_data(&record, 17)).unwrap(),
-                sawdt: to_i32(get_data(&record, 18)).unwrap(),
-                wadt: to_i32(get_data(&record, 19)).unwrap(),
+                sadt: to_i32(get_data(&record, 17))?,
+                sawdt: to_i32(get_data(&record, 18))?,
+                wadt: to_i32(get_data(&record, 19))?,
             };
             let travel_pattern_key = get_data(&record, 11);
             match traffic_record.travel_patterns.get_mut(&travel_pattern_key) {
@@ -149,29 +149,29 @@ fn add_record(
         _ => {
             let mut traffic_data = TrafficData {
                 lhrs: lhrs,
-                hwy_number: to_i32(get_data(&record, 3)).unwrap(),
+                hwy_number: to_i32(get_data(&record, 3))?,
                 hwy_type: get_data(&record, 5),
                 location_desc: get_data(&record, 6),
                 reg: get_data(&record, 7),
-                section_length: to_f32(get_data(&record, 8)).unwrap(),
-                connecting_link_length: to_f32(get_data(&record, 9)).unwrap(),
+                section_length: to_f32(get_data(&record, 8))?,
+                connecting_link_length: to_f32(get_data(&record, 9))?,
                 secondary_desc: get_data(&record, 10),
                 travel_patterns: HashMap::new(),
             };
 
             let years: Vec<TrafficYearData> = vec![TrafficYearData {
-                year: to_i32(get_data(&record, 2)).unwrap(),
-                dhv: to_f32(get_data(&record, 12)).unwrap(),
-                directional_split: to_f32(get_data(&record, 13)).unwrap(),
-                aadt: to_i32(get_data(&record, 14)).unwrap(),
-                aadt_yearly_change: to_f32(get_data(&record, 15)).unwrap(),
+                year: to_i32(get_data(&record, 2))?,
+                dhv: to_f32(get_data(&record, 12))?,
+                directional_split: to_f32(get_data(&record, 13))?,
+                aadt: to_i32(get_data(&record, 14))?,
+                aadt_yearly_change: to_f32(get_data(&record, 15))?,
                 aadt_10_year_change: match to_f32(get_data(&record, 16)) {
                     Ok(val) => Some(val),
                     Err(_) => None,
                 },
-                sadt: to_i32(get_data(&record, 17)).unwrap(),
-                sawdt: to_i32(get_data(&record, 18)).unwrap(),
-                wadt: to_i32(get_data(&record, 19)).unwrap(),
+                sadt: to_i32(get_data(&record, 17))?,
+                sawdt: to_i32(get_data(&record, 18))?,
+                wadt: to_i32(get_data(&record, 19))?,
             }];
 
             traffic_data
@@ -188,13 +188,13 @@ fn add_record(
 fn get_traffic_data() -> Vec<bson::Document> {
     let mut traffic: Vec<TrafficData> = Vec::new();
 
-    let file = File::open("test.csv").unwrap();
+    let file = File::open("traffic_volumes.csv").unwrap();
     let mut rdr = csv::ReaderBuilder::new().flexible(true).from_reader(file);
     for result in rdr.records() {
         match result {
-            Ok(record) => {
-                add_record(&mut traffic, record);
-            }
+            Ok(record) => match add_record(&mut traffic, record) {
+                _ => {}
+            },
             Err(_) => {}
         }
     }
