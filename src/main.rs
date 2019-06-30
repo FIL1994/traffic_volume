@@ -6,6 +6,36 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::File;
 
+use std::num::{ParseFloatError, ParseIntError};
+use std::{error, fmt};
+
+#[derive(Debug, Clone)]
+struct CustomError;
+
+impl fmt::Display for CustomError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "an error occurred")
+    }
+}
+
+impl error::Error for CustomError {
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+        None
+    }
+}
+
+impl From<ParseIntError> for CustomError {
+    fn from(_error: ParseIntError) -> Self {
+        CustomError {}
+    }
+}
+
+impl From<ParseFloatError> for CustomError {
+    fn from(_error: ParseFloatError) -> Self {
+        CustomError {}
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 struct TrafficDataRecord {
     lhrs: i32, // Linear Highway Referencing System
@@ -60,16 +90,19 @@ struct TrafficData {
     travel_patterns: HashMap<String, TravelPatternData>,
 }
 
-fn add_record(traffic: &mut Vec<TrafficData>, record: csv::StringRecord) {
+fn add_record(
+    traffic: &mut Vec<TrafficData>,
+    record: csv::StringRecord,
+) -> Result<(), CustomError> {
     fn get_data(record: &csv::StringRecord, index: usize) -> String {
         record.get(index).unwrap().trim().to_string()
     }
 
-    fn to_i32(string: String) -> Result<i32, std::num::ParseIntError> {
+    fn to_i32(string: String) -> Result<i32, ParseIntError> {
         Ok(string.parse::<i32>())?
     }
 
-    fn to_f32(string: String) -> Result<f32, std::num::ParseFloatError> {
+    fn to_f32(string: String) -> Result<f32, ParseFloatError> {
         let mut parseable_string = string.clone();
 
         match parseable_string.find(".") {
@@ -85,7 +118,7 @@ fn add_record(traffic: &mut Vec<TrafficData>, record: csv::StringRecord) {
     match traffic.iter_mut().find(|t| t.lhrs == lhrs) {
         Some(traffic_record) => {
             let year_record = TrafficYearData {
-                year: to_i32(get_data(&record, 2)).unwrap(),
+                year: to_i32(get_data(&record, 2))?,
                 dhv: to_f32(get_data(&record, 12)).unwrap(),
                 directional_split: to_f32(get_data(&record, 13)).unwrap(),
                 aadt: to_i32(get_data(&record, 14)).unwrap(),
@@ -148,6 +181,8 @@ fn add_record(traffic: &mut Vec<TrafficData>, record: csv::StringRecord) {
             traffic.push(traffic_data)
         }
     };
+
+    Ok(())
 }
 
 fn get_traffic_data() -> Vec<bson::Document> {
@@ -156,7 +191,6 @@ fn get_traffic_data() -> Vec<bson::Document> {
     let file = File::open("test.csv").unwrap();
     let mut rdr = csv::ReaderBuilder::new().flexible(true).from_reader(file);
     for result in rdr.records() {
-
         match result {
             Ok(record) => {
                 add_record(&mut traffic, record);
