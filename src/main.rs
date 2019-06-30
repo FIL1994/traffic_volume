@@ -1,94 +1,16 @@
 use mongodb::db::ThreadedDatabase;
 use mongodb::{Client, ThreadedClient};
 
-use serde::{Deserialize, Serialize};
-
 use std::collections::HashMap;
 use std::fs::File;
 
 use std::num::{ParseFloatError, ParseIntError};
-use std::{error, fmt};
 
-#[derive(Debug, Clone)]
-struct CustomError;
+mod custom_error;
+use custom_error::CustomError;
 
-impl fmt::Display for CustomError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "an error occurred")
-    }
-}
-
-impl error::Error for CustomError {
-    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
-        None
-    }
-}
-
-impl From<ParseIntError> for CustomError {
-    fn from(_error: ParseIntError) -> Self {
-        CustomError {}
-    }
-}
-
-impl From<ParseFloatError> for CustomError {
-    fn from(_error: ParseFloatError) -> Self {
-        CustomError {}
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct TrafficDataRecord {
-    lhrs: i32, // Linear Highway Referencing System
-    os: f32,
-    year: i32,
-    hwy_number: i32,
-    hwy_type: String,
-    location_desc: String,
-    reg: String,
-    section_length: f32,
-    connecting_link_length: f32,
-    secondary_desc: String, // (for Connecting Links, Regional Boundarys,etc)
-    travel_pattern: String,
-    dhv: f32, // design hour volume
-    directional_split: f32,
-    aadt: i32,
-    aadt_yearly_change: f32,
-    aadt_10_year_change: Option<f32>,
-    sadt: i32,
-    sawdt: i32,
-    wadt: i32,
-}
-
-#[derive(Serialize, Deserialize, Copy, Clone, Debug)]
-struct TrafficYearData {
-    year: i32,
-    dhv: f32,
-    directional_split: f32,
-    aadt: i32,
-    aadt_yearly_change: f32,
-    aadt_10_year_change: Option<f32>,
-    sadt: i32,
-    sawdt: i32,
-    wadt: i32,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct TravelPatternData {
-    years: Vec<TrafficYearData>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct TrafficData {
-    lhrs: i32,
-    hwy_number: i32,
-    hwy_type: String,
-    location_desc: String,
-    reg: String,
-    section_length: f32,
-    connecting_link_length: f32,
-    secondary_desc: String,
-    travel_patterns: HashMap<String, TravelPatternData>,
-}
+mod traffic;
+use traffic::{TrafficData, TrafficYearData, TravelPatternData};
 
 fn add_record(
     traffic: &mut Vec<TrafficData>,
