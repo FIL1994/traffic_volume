@@ -15,8 +15,8 @@ pub struct TrafficData {
     pub hwy_type: String,
     pub location_desc: String,
     pub reg: String,
-    pub section_length: f32,
-    pub connecting_link_length: f32,
+    pub section_length: f64,
+    pub connecting_link_length: f64,
     pub secondary_desc: String,
     pub travel_patterns: HashMap<String, Vec<TrafficYearData>>,
 }

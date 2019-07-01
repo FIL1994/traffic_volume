@@ -10,7 +10,7 @@ use custom_error::CustomError;
 use traffic::{TrafficData, TrafficYearData};
 
 mod string_to_num;
-use string_to_num::{to_f32, to_i32};
+use string_to_num::{to_f64, to_i32};
 
 fn get_data(record: &csv::StringRecord, index: usize) -> String {
     record.get(index).unwrap().trim().to_string()
@@ -30,11 +30,11 @@ fn add_record(
                 key,
                 TrafficYearData {
                     year: to_i32(get_data(&record, 2))?,
-                    dhv: to_f32(get_data(&record, 12))?,
-                    directional_split: to_f32(get_data(&record, 13))?,
+                    dhv: to_f64(get_data(&record, 12))?,
+                    directional_split: to_f64(get_data(&record, 13))?,
                     aadt: to_i32(get_data(&record, 14))?,
-                    aadt_yearly_change: to_f32(get_data(&record, 15))?,
-                    aadt_10_year_change: match to_f32(get_data(&record, 16)) {
+                    aadt_yearly_change: to_f64(get_data(&record, 15))?,
+                    aadt_10_year_change: match to_f64(get_data(&record, 16)) {
                         Ok(val) => Some(val),
                         Err(_) => None,
                     },
@@ -51,8 +51,8 @@ fn add_record(
                 hwy_type: get_data(&record, 5),
                 location_desc: get_data(&record, 6),
                 reg: get_data(&record, 7),
-                section_length: to_f32(get_data(&record, 8))?,
-                connecting_link_length: to_f32(get_data(&record, 9))?,
+                section_length: to_f64(get_data(&record, 8))?,
+                connecting_link_length: to_f64(get_data(&record, 9))?,
                 secondary_desc: get_data(&record, 10),
                 travel_patterns: HashMap::new(),
             };
@@ -61,11 +61,11 @@ fn add_record(
                 get_data(&record, 11),
                 TrafficYearData {
                     year: to_i32(get_data(&record, 2))?,
-                    dhv: to_f32(get_data(&record, 12))?,
-                    directional_split: to_f32(get_data(&record, 13))?,
+                    dhv: to_f64(get_data(&record, 12))?,
+                    directional_split: to_f64(get_data(&record, 13))?,
                     aadt: to_i32(get_data(&record, 14))?,
-                    aadt_yearly_change: to_f32(get_data(&record, 15))?,
-                    aadt_10_year_change: match to_f32(get_data(&record, 16)) {
+                    aadt_yearly_change: to_f64(get_data(&record, 15))?,
+                    aadt_10_year_change: match to_f64(get_data(&record, 16)) {
                         Ok(val) => Some(val),
                         Err(_) => None,
                     },

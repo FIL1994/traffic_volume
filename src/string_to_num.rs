@@ -4,7 +4,7 @@ pub fn to_i32(string: String) -> Result<i32, ParseIntError> {
     Ok(string.parse::<i32>())?
 }
 
-pub fn to_f32(string: String) -> Result<f32, ParseFloatError> {
+pub fn to_f64(string: String) -> Result<f64, ParseFloatError> {
     let mut parseable_string = string.clone();
 
     match parseable_string.find(".") {
@@ -12,5 +12,5 @@ pub fn to_f32(string: String) -> Result<f32, ParseFloatError> {
         None => parseable_string.push_str(".0"),
     };
 
-    Ok(parseable_string.parse::<f32>())?
+    Ok(parseable_string.parse::<f64>())?
 }
