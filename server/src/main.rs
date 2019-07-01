@@ -13,7 +13,7 @@ mod db;
 mod schema;
 
 use crate::schema::{create_schema, Schema};
-use db::run;
+use db::collect_data;
 
 fn graphiql() -> HttpResponse {
     let html = graphiql_source("http://127.0.0.1:8080/graphql");
@@ -45,7 +45,7 @@ fn main() -> io::Result<()> {
     // Create Juniper schema
     let schema = std::sync::Arc::new(create_schema());
 
-    // run();
+    collect_data();
 
     // Start http server
     HttpServer::new(move || {
