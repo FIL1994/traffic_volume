@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use juniper;
 
 #[derive(Serialize, Deserialize, Copy, Clone, Debug)]
 pub struct TrafficYearData {
@@ -12,6 +13,17 @@ pub struct TrafficYearData {
     pub sadt: i32,
     pub sawdt: i32,
     pub wadt: i32,
+}
+
+#[juniper::object]
+impl TrafficYearData {
+    fn year(&self) -> i32 {
+        self.year
+    }
+
+    fn aadt(&self) -> i32 {
+        self.aadt
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -34,8 +46,7 @@ impl TrafficData {
                 travel_pattern_data.push(year);
             }
             _ => {
-                self.travel_patterns
-                    .insert(key, vec![year]);
+                self.travel_patterns.insert(key, vec![year]);
             }
         }
     }

@@ -1,11 +1,10 @@
 [package]
-name = "traffic_volume"
+name = "traffic"
 version = "0.1.0"
 authors = ["Philip Van Raalte <phil.vanraalte@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-csv = "1.0.7"
-mongodb = "0.3.12"
-bson = "0.13"
-traffic = { path = "./traffic" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.39"
+juniper = "0.12"
