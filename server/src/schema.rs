@@ -1,6 +1,6 @@
+use juniper::EmptyMutation;
 use juniper::FieldResult;
 use juniper::RootNode;
-use juniper::EmptyMutation;
 use mongodb::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -32,9 +32,19 @@ impl TrafficData {
     }
 }
 
+pub struct Context {
+    records: Vec<TrafficData>,
+}
+impl Context {
+    pub fn new(records: Vec<TrafficData>) -> Self {
+        Context { records: records }
+    }
+}
+impl juniper::Context for Context {}
+
 pub struct QueryRoot;
 
-graphql_object!(QueryRoot: () | &self | {
+graphql_object!(QueryRoot: Context | &self | {
     field traffic(&executor, id: String) -> FieldResult<TrafficData> {
         Ok(TrafficData{
             id: ObjectId::new().unwrap(),
@@ -51,7 +61,7 @@ graphql_object!(QueryRoot: () | &self | {
     }
 });
 
-type MutationRoot = EmptyMutation<()>;
+type MutationRoot = EmptyMutation<Context>;
 
 pub type Schema = RootNode<'static, QueryRoot, MutationRoot>;
 

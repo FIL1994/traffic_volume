@@ -12,7 +12,7 @@ use juniper::http::GraphQLRequest;
 mod db;
 mod schema;
 
-use crate::schema::{create_schema, Schema};
+use crate::schema::{create_schema, Context, Schema};
 use db::collect_data;
 
 fn graphiql() -> HttpResponse {
@@ -27,7 +27,9 @@ fn graphql(
     data: web::Json<GraphQLRequest>,
 ) -> impl Future<Item = HttpResponse, Error = Error> {
     web::block(move || {
-        let res = data.execute(&st, &());
+        let ctx = Context::new(collect_data());
+
+        let res = data.execute(&st, &ctx);
         Ok::<_, serde_json::error::Error>(serde_json::to_string(&res)?)
     })
     .map_err(Error::from)
@@ -44,8 +46,6 @@ fn main() -> io::Result<()> {
 
     // Create Juniper schema
     let schema = std::sync::Arc::new(create_schema());
-
-    collect_data();
 
     // Start http server
     HttpServer::new(move || {

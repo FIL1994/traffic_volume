@@ -1,9 +1,9 @@
 use crate::schema::TrafficData;
+use mongodb::coll::options::FindOptions;
 use mongodb::db::ThreadedDatabase;
 use mongodb::{Bson, Client, ThreadedClient};
-use mongodb::coll::options::FindOptions;
 
-pub fn collect_data() ->  Vec<TrafficData> {
+pub fn collect_data() -> Vec<TrafficData> {
     let client = Client::connect("localhost", 27017).expect("failed to initialize client");
 
     let db = client.db("mydb");
@@ -13,7 +13,7 @@ pub fn collect_data() ->  Vec<TrafficData> {
 
     let mut options = FindOptions::new();
     options.limit = Some(100);
-    let mut cursor = traffic_col.find(None, Some(options)).unwrap();
+    let cursor = traffic_col.find(None, Some(options)).unwrap();
 
     for result in cursor {
         if let Ok(item) = result {
