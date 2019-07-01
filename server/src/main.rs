@@ -15,8 +15,6 @@ mod schema;
 use crate::schema::{create_schema, Schema};
 use db::run;
 
-use traffic::{TrafficYearData};
-
 fn graphiql() -> HttpResponse {
     let html = graphiql_source("http://127.0.0.1:8080/graphql");
     HttpResponse::Ok()

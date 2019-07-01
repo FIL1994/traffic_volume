@@ -2,7 +2,8 @@ use mongodb::db::ThreadedDatabase;
 use mongodb::oid::ObjectId;
 use mongodb::{Bson, Client, ThreadedClient};
 use serde::{Deserialize, Serialize};
-// use traffic_volume::traffic::{TrafficYearData};
+use std::collections::HashMap;
+use traffic::TrafficYearData;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TrafficData {
@@ -16,6 +17,7 @@ pub struct TrafficData {
     pub section_length: f32,
     pub connecting_link_length: f32,
     pub secondary_desc: String,
+    pub travel_patterns: HashMap<String, Vec<TrafficYearData>>,
 }
 
 pub fn run() {
@@ -29,7 +31,7 @@ pub fn run() {
         if let Ok(item) = result {
             let data: TrafficData =
                 bson::from_bson(Bson::Document(item)).expect("Expected valid BSON deserialization");
-            println!("d {:?}", data);
+            println!("data {:?}", data);
             return;
         }
     }
