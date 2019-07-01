@@ -9,9 +9,11 @@ use futures::future::Future;
 use juniper::http::graphiql::graphiql_source;
 use juniper::http::GraphQLRequest;
 
+mod db;
 mod schema;
 
 use crate::schema::{create_schema, Schema};
+use db::run;
 
 fn graphiql() -> HttpResponse {
     let html = graphiql_source("http://127.0.0.1:8080/graphql");
@@ -42,6 +44,8 @@ fn main() -> io::Result<()> {
 
     // Create Juniper schema
     let schema = std::sync::Arc::new(create_schema());
+
+    run();
 
     // Start http server
     HttpServer::new(move || {

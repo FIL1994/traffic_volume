@@ -3,13 +3,11 @@ use juniper::RootNode;
 
 pub struct QueryRoot;
 
-graphql_object!(QueryRoot: () |&self| {
-});
+graphql_object!(QueryRoot: () | &self | {});
 
 pub struct MutationRoot;
 
-graphql_object!(MutationRoot: () |&self| {
-});
+graphql_object!(MutationRoot: () | &self | {});
 
 pub type Schema = RootNode<'static, QueryRoot, MutationRoot>;
 
