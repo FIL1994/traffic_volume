@@ -46,6 +46,8 @@ pub struct QueryRoot;
 
 graphql_object!(QueryRoot: Context | &self | {
     field traffic(&executor, id: String) -> FieldResult<TrafficData> {
+        let context = executor.context();
+
         Ok(TrafficData{
             id: ObjectId::new().unwrap(),
             lhrs: 2,
@@ -58,6 +60,9 @@ graphql_object!(QueryRoot: Context | &self | {
             secondary_desc: "second desc".to_string(),
             travel_patterns: HashMap::new()
         })
+    },
+    field traffics(&executor) -> FieldResult<&Vec<TrafficData>> {
+        Ok(&executor.context().records)
     }
 });
 
