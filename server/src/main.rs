@@ -45,7 +45,7 @@ fn main() -> io::Result<()> {
     // Create Juniper schema
     let schema = std::sync::Arc::new(create_schema());
 
-    run();
+    // run();
 
     // Start http server
     HttpServer::new(move || {
