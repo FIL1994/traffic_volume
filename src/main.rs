@@ -7,7 +7,6 @@ use std::fs::File;
 mod custom_error;
 use custom_error::CustomError;
 
-mod traffic;
 use traffic::{TrafficData, TrafficYearData};
 
 mod string_to_num;

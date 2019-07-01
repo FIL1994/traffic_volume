@@ -600,14 +600,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "traffic"
+version = "0.1.0"
+dependencies = [
+ "serde 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_json 1.0.39 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "traffic_volume"
 version = "0.1.0"
 dependencies = [
  "bson 0.13.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "csv 1.0.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "mongodb 0.3.12 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 1.0.92 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_json 1.0.39 (registry+https://github.com/rust-lang/crates.io-index)",
+ "traffic 0.1.0",
 ]
 
 [[package]]

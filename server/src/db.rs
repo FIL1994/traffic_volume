@@ -2,6 +2,7 @@ use mongodb::db::ThreadedDatabase;
 use mongodb::oid::ObjectId;
 use mongodb::{Bson, Client, ThreadedClient};
 use serde::{Deserialize, Serialize};
+// use traffic_volume::traffic::{TrafficYearData};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TrafficData {

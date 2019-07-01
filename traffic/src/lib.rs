@@ -34,8 +34,7 @@ impl TrafficData {
                 travel_pattern_data.push(year);
             }
             _ => {
-                self.travel_patterns
-                    .insert(key, vec![year]);
+                self.travel_patterns.insert(key, vec![year]);
             }
         }
     }
