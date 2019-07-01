@@ -15,11 +15,6 @@ pub struct TrafficYearData {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct TravelPatternData {
-    years: Vec<TrafficYearData>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
 pub struct TrafficData {
     pub lhrs: i32,
     pub hwy_number: i32,
@@ -29,18 +24,18 @@ pub struct TrafficData {
     pub section_length: f32,
     pub connecting_link_length: f32,
     pub secondary_desc: String,
-    pub travel_patterns: HashMap<String, TravelPatternData>,
+    pub travel_patterns: HashMap<String, Vec<TrafficYearData>>,
 }
 
 impl TrafficData {
     pub fn add_year(&mut self, key: String, year: TrafficYearData) {
         match self.travel_patterns.get_mut(&key) {
             Some(travel_pattern_data) => {
-                travel_pattern_data.years.push(year);
+                travel_pattern_data.push(year);
             }
             _ => {
                 self.travel_patterns
-                    .insert(key, TravelPatternData { years: vec![year] });
+                    .insert(key, vec![year]);
             }
         }
     }
