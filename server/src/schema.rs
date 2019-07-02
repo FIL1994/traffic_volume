@@ -23,12 +23,32 @@ pub struct TrafficData {
 
 #[juniper::object]
 impl TrafficData {
+    fn id(&self) -> String {
+        self.id.to_hex()
+    }
     fn lhrs(&self) -> i32 {
         self.lhrs
     }
-
     fn hwy_number(&self) -> i32 {
         self.hwy_number
+    }
+    fn hwy_type(&self) -> &String {
+        &self.hwy_type
+    }
+    fn location_desc(&self) -> &String {
+        &self.location_desc
+    }
+    fn reg(&self) -> &String {
+        &self.reg
+    }
+    fn section_length(&self) -> f64 {
+        self.section_length
+    }
+    fn connecting_link_length(&self) -> f64 {
+        self.connecting_link_length
+    }
+    fn secondary_desc(&self) -> &String {
+        &self.secondary_desc
     }
 }
 

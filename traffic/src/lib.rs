@@ -1,8 +1,8 @@
+use juniper::GraphQLObject;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use juniper;
 
-#[derive(Serialize, Deserialize, Copy, Clone, Debug)]
+#[derive(Serialize, Deserialize, Copy, Clone, Debug, GraphQLObject)]
 pub struct TrafficYearData {
     pub year: i32,
     pub dhv: f64,
@@ -13,17 +13,6 @@ pub struct TrafficYearData {
     pub sadt: i32,
     pub sawdt: i32,
     pub wadt: i32,
-}
-
-#[juniper::object]
-impl TrafficYearData {
-    fn year(&self) -> i32 {
-        self.year
-    }
-
-    fn aadt(&self) -> i32 {
-        self.aadt
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
