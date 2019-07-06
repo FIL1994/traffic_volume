@@ -24,4 +24,4 @@ Parses a CSV file of traffic data, from the [Ontario data catalogue](https://www
     cd server
     cargo run
     ```
-    visit: http://localhost:8080/graphiql
+    visit: http://127.0.0.1:8080/graphiql

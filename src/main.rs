@@ -1,7 +1,6 @@
 use mongodb::db::ThreadedDatabase;
 use mongodb::{Client, ThreadedClient};
 
-use std::collections::HashMap;
 use std::fs::File;
 
 mod custom_error;
@@ -54,7 +53,7 @@ fn add_record(
                 section_length: to_f64(get_data(&record, 8))?,
                 connecting_link_length: to_f64(get_data(&record, 9))?,
                 secondary_desc: get_data(&record, 10),
-                travel_patterns: HashMap::new(),
+                travel_patterns: vec![],
             };
 
             traffic_data.add_year(

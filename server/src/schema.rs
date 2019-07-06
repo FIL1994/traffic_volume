@@ -18,7 +18,7 @@ pub struct TrafficData {
     pub section_length: f64,
     pub connecting_link_length: f64,
     pub secondary_desc: String,
-    pub travel_patterns: HashMap<String, Vec<TrafficYearData>>,
+    // pub travel_patterns: HashMap<String, Vec<TrafficYearData>>,
 }
 
 #[juniper::object]
@@ -78,7 +78,7 @@ graphql_object!(QueryRoot: Context | &self | {
             section_length: 1.0,
             connecting_link_length: 1.0,
             secondary_desc: "second desc".to_string(),
-            travel_patterns: HashMap::new()
+            // travel_patterns: HashMap::new()
         })
     },
     field traffics(&executor) -> FieldResult<&Vec<TrafficData>> {

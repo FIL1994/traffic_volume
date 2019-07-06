@@ -1,6 +1,5 @@
 use juniper::GraphQLObject;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Copy, Clone, Debug, GraphQLObject)]
 pub struct TrafficYearData {
@@ -15,6 +14,12 @@ pub struct TrafficYearData {
     pub wadt: i32,
 }
 
+#[derive(Serialize, Deserialize, Debug, GraphQLObject)]
+pub struct TravelPattern {
+    pub pattern: String,
+    pub years: Vec<TrafficYearData>,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TrafficData {
     pub lhrs: i32,
@@ -25,17 +30,20 @@ pub struct TrafficData {
     pub section_length: f64,
     pub connecting_link_length: f64,
     pub secondary_desc: String,
-    pub travel_patterns: HashMap<String, Vec<TrafficYearData>>,
+    pub travel_patterns: Vec<TravelPattern>,
 }
 
 impl TrafficData {
     pub fn add_year(&mut self, key: String, year: TrafficYearData) {
-        match self.travel_patterns.get_mut(&key) {
-            Some(travel_pattern_data) => {
-                travel_pattern_data.push(year);
+        match self.travel_patterns.iter_mut().find(|t| t.pattern == key) {
+            Some(pattern) => {
+                pattern.years.push(year);
             }
             _ => {
-                self.travel_patterns.insert(key, vec![year]);
+                self.travel_patterns.push(TravelPattern {
+                    pattern: key,
+                    years: vec![year]
+                });
             }
         }
     }
