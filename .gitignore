@@ -3,3 +3,4 @@ target
 *.csv*
 .idea
 !data/example.csv
+did_insert.txt

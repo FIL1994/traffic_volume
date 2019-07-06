@@ -2,22 +2,22 @@ version: "3"
 services:
   mongo:
     image: mongo:latest
-    restart: always
+    restart: "no"
     ports:
       - 27017:27017
   mongo-express:
     image: mongo-express
-    restart: always
+    restart: "no"
     ports:
       - 8081:8081
     links:
       - mongo
   rust:
-    image: rust
+    build: .
     volumes:
       - ./:/usr/local/app/
     ports:
-    - 8080:8080
+      - 8080:8080
     links:
       - mongo
     command: /usr/local/app/scripts/entrypoint.sh

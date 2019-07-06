@@ -1,16 +1,16 @@
 #! /bin/bash
-echo "starting"
-cd /usr/local/app
-if ./scripts/download.sh; then
-    # wait for mongodb to start 
-    let "TIMEOUT = 1 * 30"
-    ./scripts/wait-for-it.sh mongo:27017 -t $TIMEOUT
 
-    cd traffic_records
+echo "starting"
+
+if test ! -f "did_insert.txt"
+then
+    echo "inserting..."
+    # wait for mongodb to start 
+    ./scripts/wait-for-it.sh mongo:27017 -t 30
+    cd /usr/local/app/traffic_records
     cargo run --release
-    cd ../server
-    cargo run --release
-else
-    echo failed
-    exit 1
+    touch ../did_insert.txt
 fi
+
+cd /usr/local/app/server
+cargo run --release
