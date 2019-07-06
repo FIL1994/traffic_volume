@@ -9,7 +9,7 @@ lazy_static! {
 }
 
 fn collect_data() -> Vec<TrafficData> {
-    let client = Client::connect("localhost", 27017).expect("failed to initialize client");
+    let client = Client::connect("mongo", 27017).expect("failed to initialize client");
 
     let db = client.db("mydb");
     let traffic_col = db.collection("traffic");
