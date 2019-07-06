@@ -83,8 +83,16 @@ graphql_object!(QueryRoot: Context | &self | {
             travel_patterns: vec![]
         })
     },
-    field traffics(&executor) -> FieldResult<&Vec<TrafficData>> {
-        Ok(&executor.context().records)
+    field traffics(&executor, page: Option<i32>, page_size: Option<i32>) -> FieldResult<&[TrafficData]> {
+        let records:&Vec<TrafficData> = &executor.context().records;
+
+        let page = page.unwrap_or(1) as usize;
+        let page_size = page_size.unwrap_or(5) as usize;
+
+        let start = (page -1) * page_size;
+        let end:usize = std::cmp::min(page * page_size, records.len());
+
+        Ok(&records[start..end])
     }
 });
 
