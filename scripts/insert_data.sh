@@ -2,9 +2,9 @@
 
 if ./download.sh; then
     cd ../traffic_records
-    cargo build --release
+    cargo build
     cd ../server
-    cargo build --release
+    cargo build
 else
     echo failed
     exit 1
