@@ -42,7 +42,7 @@ impl TrafficData {
             _ => {
                 self.travel_patterns.push(TravelPattern {
                     pattern: key,
-                    years: vec![year]
+                    years: vec![year],
                 });
             }
         }

@@ -3,8 +3,7 @@ use juniper::FieldResult;
 use juniper::RootNode;
 use mongodb::oid::ObjectId;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use traffic::TrafficYearData;
+use traffic::TravelPattern;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TrafficData {
@@ -18,7 +17,7 @@ pub struct TrafficData {
     pub section_length: f64,
     pub connecting_link_length: f64,
     pub secondary_desc: String,
-    // pub travel_patterns: HashMap<String, Vec<TrafficYearData>>,
+    pub travel_patterns: Vec<TravelPattern>,
 }
 
 #[juniper::object]
@@ -78,7 +77,7 @@ graphql_object!(QueryRoot: Context | &self | {
             section_length: 1.0,
             connecting_link_length: 1.0,
             secondary_desc: "second desc".to_string(),
-            // travel_patterns: HashMap::new()
+            travel_patterns: vec![]
         })
     },
     field traffics(&executor) -> FieldResult<&Vec<TrafficData>> {
