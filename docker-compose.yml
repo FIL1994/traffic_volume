@@ -12,3 +12,12 @@ services:
       - 8081:8081
     links:
       - mongo
+  rust:
+    image: rust
+    volumes:
+      - ./:/usr/local/app/
+    ports:
+    - 8080:8080
+    links:
+      - mongo
+    command: /usr/local/app/scripts/entrypoint.sh
