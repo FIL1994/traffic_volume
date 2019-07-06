@@ -49,6 +49,9 @@ impl TrafficData {
     fn secondary_desc(&self) -> &String {
         &self.secondary_desc
     }
+    fn travel_patterns(&self) -> &Vec<TravelPattern> {
+        &self.travel_patterns
+    }
 }
 
 pub struct Context {
