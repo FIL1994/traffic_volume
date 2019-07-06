@@ -4,6 +4,7 @@ use juniper::RootNode;
 use mongodb::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 use traffic::TravelPattern;
+use crate::db::RECORDS;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TrafficData {
@@ -54,14 +55,7 @@ impl TrafficData {
     }
 }
 
-pub struct Context {
-    records: Vec<TrafficData>,
-}
-impl Context {
-    pub fn new(records: Vec<TrafficData>) -> Self {
-        Context { records: records }
-    }
-}
+pub struct Context {}
 impl juniper::Context for Context {}
 
 pub struct QueryRoot;
@@ -84,7 +78,7 @@ graphql_object!(QueryRoot: Context | &self | {
         })
     },
     field traffics(&executor, page: Option<i32>, page_size: Option<i32>) -> FieldResult<&[TrafficData]> {
-        let records:&Vec<TrafficData> = &executor.context().records;
+        let records:&Vec<TrafficData> = &RECORDS;
 
         let page = page.unwrap_or(1) as usize;
         let page_size = page_size.unwrap_or(5) as usize;

@@ -3,6 +3,8 @@ use std::sync::Arc;
 
 #[macro_use]
 extern crate juniper;
+#[macro_use]
+extern crate lazy_static;
 
 use actix_web::{middleware, web, App, Error, HttpResponse, HttpServer};
 use futures::future::Future;
@@ -13,7 +15,6 @@ mod db;
 mod schema;
 
 use crate::schema::{create_schema, Context, Schema};
-use db::collect_data;
 
 fn graphiql() -> HttpResponse {
     let html = graphiql_source("http://127.0.0.1:8080/graphql");
@@ -27,7 +28,8 @@ fn graphql(
     data: web::Json<GraphQLRequest>,
 ) -> impl Future<Item = HttpResponse, Error = Error> {
     web::block(move || {
-        let ctx = Context::new(collect_data());
+        let ctx = Context {
+        };
 
         let res = data.execute(&st, &ctx);
         Ok::<_, serde_json::error::Error>(serde_json::to_string(&res)?)

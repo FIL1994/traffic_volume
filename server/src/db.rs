@@ -1,19 +1,21 @@
 use crate::schema::TrafficData;
-use mongodb::coll::options::FindOptions;
 use mongodb::db::ThreadedDatabase;
 use mongodb::{Bson, Client, ThreadedClient};
 
-pub fn collect_data() -> Vec<TrafficData> {
+lazy_static! {
+    pub static ref RECORDS: Vec<TrafficData> = {
+        collect_data()
+    };
+}
+
+fn collect_data() -> Vec<TrafficData> {
     let client = Client::connect("localhost", 27017).expect("failed to initialize client");
 
     let db = client.db("mydb");
     let traffic_col = db.collection("traffic");
 
     let mut data: Vec<TrafficData> = Vec::new();
-
-    let mut options = FindOptions::new();
-    options.limit = Some(100);
-    let cursor = traffic_col.find(None, Some(options)).unwrap();
+    let cursor = traffic_col.find(None, None).unwrap();
 
     for result in cursor {
         if let Ok(item) = result {
