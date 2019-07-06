@@ -86,7 +86,9 @@ fn get_traffic_data() -> Vec<bson::Document> {
 
     for result in csv::ReaderBuilder::new()
         .flexible(true)
-        .from_reader(File::open("traffic_volumes.csv").unwrap())
+        .from_reader(File::open("../traffic_volumes.csv").unwrap_or(
+            File::open("../data/example.csv").unwrap()
+        ))
         .records()
     {
         match result {

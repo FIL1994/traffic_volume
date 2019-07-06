@@ -697,7 +697,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "traffic_volume"
+name = "traffic_records"
 version = "0.1.0"
 dependencies = [
  "bson 0.13.0 (registry+https://github.com/rust-lang/crates.io-index)",

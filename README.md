@@ -16,6 +16,7 @@ Parses a CSV file of traffic data, from the [Ontario data catalogue](https://www
 
 3. Import Data to DB
     ```bash
+    cd traffic_records
     cargo run
     ```
 

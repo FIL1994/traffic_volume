@@ -1,0 +1,6 @@
+LHRS,O/S,Year,Hwy #,Hwy Let,Hwy Type (Text),Location Description,Reg,Section Length,Connecting Link Length,"Secondary Description (for Connecting Links, Regional Boundarys,etc)",Travel Pattern,DHV %,Directional Split,AADT,Yearly % Change in AADT,10 Year % Change in AADT,SADT,SAWDT,WADT
+10000,0,1991,1, ,Fwy,GODERICH ST-PEACE BR PLAZA         ,CR,0.2,0,                         ,CTR,9,70,15300,0.013245033,,19200,19100,13300
+10000,0,1992,1, ,Fwy,GODERICH ST-PEACE BR PLAZA         ,CR,0.2,0,                         ,CTR,9.2,70,22200,0.450980392,,27900,26800,18800
+10000,0,1993,1, ,Fwy,GODERICH ST-PEACE BR PLAZA         ,CR,0.2,0,                         ,CTR,9.1,70,21500,-0.031531532,,27100,26000,18300
+10022,0,2009,1, ,Fwy,NIAG RD 25-NETHERBY RD-IC12        ,CR,3.3,0,,CTR,9.8,52,19700,-0.03902439,,24100,23200,16700
+10022,0,2010,1, ,Fwy,NIAG RD 25-NETHERBY RD-IC12        ,CR,3.3,0,,CTR,9.8,58.6732407,18800,-0.045685279,-0.104761905,22900,22000,16000
