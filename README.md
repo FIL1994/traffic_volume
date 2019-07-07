@@ -9,5 +9,5 @@ Parses a CSV file of traffic data, from the [Ontario data catalogue](https://www
     docker-compose up
     ```
 
-2. Visit: http://127.0.0.1:8080/graphiql
+2. Visit: http://0.0.0.0:8080/graphiql
     
