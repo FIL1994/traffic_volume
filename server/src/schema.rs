@@ -1,10 +1,10 @@
+use crate::db::RECORDS;
 use juniper::EmptyMutation;
 use juniper::FieldResult;
 use juniper::RootNode;
 use mongodb::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 use traffic::TravelPattern;
-use crate::db::RECORDS;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TrafficData {

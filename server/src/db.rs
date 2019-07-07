@@ -3,9 +3,7 @@ use mongodb::db::ThreadedDatabase;
 use mongodb::{Bson, Client, ThreadedClient};
 
 lazy_static! {
-    pub static ref RECORDS: Vec<TrafficData> = {
-        collect_data()
-    };
+    pub static ref RECORDS: Vec<TrafficData> = { collect_data() };
 }
 
 fn collect_data() -> Vec<TrafficData> {

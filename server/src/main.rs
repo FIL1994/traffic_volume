@@ -6,7 +6,8 @@ extern crate juniper;
 #[macro_use]
 extern crate lazy_static;
 
-use actix_web::{middleware, web, App, Error, HttpResponse, HttpServer};
+use actix_cors::Cors;
+use actix_web::{http, middleware, web, App, Error, HttpResponse, HttpServer};
 use futures::future::Future;
 use juniper::http::graphiql::graphiql_source;
 use juniper::http::GraphQLRequest;
@@ -28,8 +29,7 @@ fn graphql(
     data: web::Json<GraphQLRequest>,
 ) -> impl Future<Item = HttpResponse, Error = Error> {
     web::block(move || {
-        let ctx = Context {
-        };
+        let ctx = Context {};
 
         let res = data.execute(&st, &ctx);
         Ok::<_, serde_json::error::Error>(serde_json::to_string(&res)?)
@@ -54,6 +54,13 @@ fn main() -> io::Result<()> {
         App::new()
             .data(schema.clone())
             .wrap(middleware::Logger::default())
+            .wrap(
+                Cors::new()
+                    .allowed_methods(vec!["GET", "POST"])
+                    .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
+                    .allowed_header(http::header::CONTENT_TYPE)
+                    .max_age(3600),
+            )
             .service(web::resource("/graphql").route(web::post().to_async(graphql)))
             .service(web::resource("/graphiql").route(web::get().to(graphiql)))
     })
