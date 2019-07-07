@@ -4,25 +4,10 @@ Parses a CSV file of traffic data, from the [Ontario data catalogue](https://www
 
 
 ## Steps:
-1. Download CSV
+1. Start Docker
     ```bash
-    ./scripts/download
+    docker-compose up
     ```
 
-2. Start Docker
-    ```bash
-    docker-compose up -d
-    ```
-
-3. Import Data to DB
-    ```bash
-    cd traffic_records
-    cargo run
-    ```
-
-4. Start GraphQL Server
-    ```bash
-    cd server
-    cargo run
-    ```
-    visit: http://127.0.0.1:8080/graphiql
+2. Visit: http://127.0.0.1:8080/graphiql
+    
