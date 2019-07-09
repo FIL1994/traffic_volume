@@ -1,7 +1,5 @@
 use crate::db::RECORDS;
-use juniper::EmptyMutation;
-use juniper::FieldResult;
-use juniper::RootNode;
+use juniper::{EmptyMutation, FieldError, FieldResult, RootNode};
 use mongodb::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 use traffic::TravelPattern;
@@ -61,21 +59,17 @@ impl juniper::Context for Context {}
 pub struct QueryRoot;
 
 graphql_object!(QueryRoot: Context | &self | {
-    field traffic(&executor, id: String) -> FieldResult<TrafficData> {
-        let context = executor.context();
+    field traffic(&executor, id: String) -> FieldResult<&TrafficData> {
+        let records:&Vec<TrafficData> = &RECORDS;
 
-        Ok(TrafficData{
-            id: ObjectId::new().unwrap(),
-            lhrs: 2,
-            hwy_number: 1,
-            hwy_type: "type".to_string(),
-            location_desc: "desc".to_string(),
-            reg: "reg".to_string(),
-            section_length: 1.0,
-            connecting_link_length: 1.0,
-            secondary_desc: "second desc".to_string(),
-            travel_patterns: vec![]
-        })
+        match records.iter().find(|t| t.id.to_hex() == id) {
+            Some(record) => {
+                Ok(record)
+            }
+            _ => {
+                Err(FieldError::new("Record not found", graphql_value!({ "internal_error": "Record not found" })))
+            }
+        }
     },
     field traffics(&executor, page: Option<i32>, page_size: Option<i32>) -> FieldResult<&[TrafficData]> {
         let records:&Vec<TrafficData> = &RECORDS;
