@@ -19,13 +19,13 @@ pub struct TrafficYearData {
     pub wadt: i32,
 }
 
-#[derive(Serialize, Deserialize, Debug, GraphQLObject)]
+#[derive(Serialize, Deserialize, Debug, Clone, GraphQLObject)]
 pub struct TravelPattern {
     pub pattern: String,
     pub years: Vec<TrafficYearData>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TrafficData {
     /** Linear Highway Referencing System */
     pub lhrs: i32,

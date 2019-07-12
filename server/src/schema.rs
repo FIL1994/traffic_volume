@@ -4,7 +4,7 @@ use mongodb::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 use traffic::TravelPattern;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TrafficData {
     #[serde(rename = "_id")]
     pub id: ObjectId,
