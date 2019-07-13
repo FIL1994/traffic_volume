@@ -97,30 +97,29 @@ graphql_object!(QueryRoot: Context | &self | {
             }
         }
     },
-    field traffics(&executor, page: Option<i32>, page_size: Option<i32>, sort_by: Option<SortField>, sort_asc: Option<bool>) -> FieldResult<Vec<TrafficData>> {
+    field traffics(
+            &executor,
+            page: Option<i32>,
+            page_size: Option<i32>,
+            sort_by: Option<SortField>,
+            sort_asc: Option<bool>
+        ) -> FieldResult<Vec<TrafficData>> {
+
+        fn sort<K, F>(f: F) -> Vec<TrafficData> 
+            where F: FnMut(&TrafficData) -> K, K: Ord 
+        {
+            let mut records = RECORDS.clone();
+            records.sort_by_key(f);
+            records
+        }
+
         let mut records:Vec<TrafficData> = match sort_by {
             Some(sort_by) => {
                 match sort_by {
-                    SortField::LocationDesc => {
-                        let mut r = RECORDS.clone();
-                        r.sort_by_key(|r| r.location_desc.clone());
-                        r
-                    },
-                    SortField::HwyNumber => {
-                        let mut r = RECORDS.clone();
-                        r.sort_by_key(|r| r.hwy_number.clone());
-                        r
-                    },
-                    SortField::SecondaryDesc => {
-                        let mut r = RECORDS.clone();
-                        r.sort_by_key(|r| r.secondary_desc.clone());
-                        r
-                    },
-                    SortField::LHRS => {
-                        let mut r = RECORDS.clone();
-                        r.sort_by_key(|r| r.lhrs.clone());
-                        r
-                    },
+                    SortField::LocationDesc => sort(|r| r.location_desc.clone()),
+                    SortField::HwyNumber => sort(|r| r.hwy_number.clone()),
+                    SortField::SecondaryDesc => sort(|r| r.secondary_desc.clone()),
+                    SortField::LHRS => sort(|r| r.lhrs.clone())
                 }
             }
             _ => RECORDS.clone()
@@ -132,7 +131,7 @@ graphql_object!(QueryRoot: Context | &self | {
         let page_size = page_size.unwrap_or(5) as usize;
 
         let start = (page -1) * page_size;
-        let end:usize = std::cmp::min(page * page_size, records.len());
+        let end: usize = std::cmp::min(page * page_size, records.len());
 
         Ok(records[start..end].to_vec())
     }
