@@ -98,13 +98,13 @@ graphql_object!(QueryRoot: Context | &self | {
         }
     },
     field traffics(
-            &executor,
-            page: Option<i32>,
-            page_size: Option<i32>,
-            sort_by: Option<SortField>,
-            sort_asc: Option<bool>
-        ) -> FieldResult<Vec<TrafficData>> {
-
+        &executor,
+        page: Option<i32>,
+        page_size: Option<i32>,
+        sort_by: Option<SortField>,
+        sort_asc: Option<bool>
+    ) -> FieldResult<Vec<TrafficData>> 
+    {
         fn sort<K, F>(f: F) -> Vec<TrafficData> 
             where F: FnMut(&TrafficData) -> K, K: Ord 
         {
