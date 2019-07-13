@@ -2,7 +2,7 @@ use crate::db::RECORDS;
 use juniper::{EmptyMutation, FieldError, FieldResult, RootNode};
 use mongodb::oid::ObjectId;
 use serde::{Deserialize, Serialize};
-use traffic::TravelPattern;
+use traffic::{TrafficYearData, TravelPattern};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TrafficData {
@@ -17,6 +17,21 @@ pub struct TrafficData {
     pub connecting_link_length: f64,
     pub secondary_desc: String,
     pub travel_patterns: Vec<TravelPattern>,
+}
+
+impl TrafficData {
+    fn flatten_years(&self) -> Vec<TrafficYearData> {
+        self.travel_patterns
+            .clone()
+            .iter()
+            .flat_map(|tp| tp.to_owned().years)
+            .collect()
+    }
+
+    fn get_avg_aadt(&self) -> i32 {
+        let years: Vec<TrafficYearData> = self.flatten_years();
+        years.iter().map(|t| t.to_owned().aadt).sum()
+    }
 }
 
 #[juniper::object]
@@ -50,6 +65,10 @@ impl TrafficData {
     }
     fn travel_patterns(&self) -> &Vec<TravelPattern> {
         &self.travel_patterns
+    }
+
+    fn avg_aadt(&self) -> i32 {
+        self.get_avg_aadt().clone().to_owned()
     }
 }
 
