@@ -78,6 +78,8 @@ enum SortField {
     LocationDesc,
     SecondaryDesc,
     HwyNumber,
+    HwyType,
+    AvgAadt,
 }
 
 pub struct Context {}
@@ -119,7 +121,9 @@ graphql_object!(QueryRoot: Context | &self | {
                     SortField::LocationDesc => sort(|r| r.location_desc.clone()),
                     SortField::HwyNumber => sort(|r| r.hwy_number.clone()),
                     SortField::SecondaryDesc => sort(|r| r.secondary_desc.clone()),
-                    SortField::LHRS => sort(|r| r.lhrs.clone())
+                    SortField::LHRS => sort(|r| r.lhrs.clone()),
+                    SortField::AvgAadt => sort(|r| r.get_avg_aadt().clone()),
+                    SortField::HwyType => sort(|r| r.hwy_type.clone()),
                 }
             }
             _ => RECORDS.clone()
