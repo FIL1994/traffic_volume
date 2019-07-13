@@ -69,7 +69,6 @@ pub struct QueryRoot;
 graphql_object!(QueryRoot: Context | &self | {
     field traffic(&executor, id: String) -> FieldResult<&TrafficData> {
         let records:&Vec<TrafficData> = &RECORDS;
-
         match records.iter().find(|t| t.id.to_hex() == id) {
             Some(record) => {
                 Ok(record)
@@ -79,8 +78,8 @@ graphql_object!(QueryRoot: Context | &self | {
             }
         }
     },
-    field traffics(&executor, page: Option<i32>, page_size: Option<i32>, sort_by: Option<SortField>) -> FieldResult<Vec<TrafficData>> {
-        let records:Vec<TrafficData>  = match sort_by {
+    field traffics(&executor, page: Option<i32>, page_size: Option<i32>, sort_by: Option<SortField>, sort_asc: Option<bool>) -> FieldResult<Vec<TrafficData>> {
+        let mut records:Vec<TrafficData> = match sort_by {
             Some(sort_by) => {
                 match sort_by {
                     SortField::LocationDesc => {
@@ -107,6 +106,8 @@ graphql_object!(QueryRoot: Context | &self | {
             }
             _ => RECORDS.clone()
         };
+
+        if !sort_asc.unwrap_or(true) { records.reverse(); }
 
         let page = page.unwrap_or(1) as usize;
         let page_size = page_size.unwrap_or(5) as usize;
