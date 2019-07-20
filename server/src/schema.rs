@@ -1,5 +1,9 @@
 use crate::db::RECORDS;
-use juniper::{EmptyMutation, FieldError, FieldResult, RootNode};
+use juniper::meta::MetaType;
+use juniper::{
+    Arguments, DefaultScalarValue, EmptyMutation, ExecutionResult, Executor, FieldError,
+    FieldResult, GraphQLType, Registry, RootNode,
+};
 use mongodb::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 use traffic::{TrafficYearData, TravelPattern};
@@ -34,41 +38,67 @@ impl TrafficData {
     }
 }
 
-#[juniper::object]
 impl TrafficData {
     fn id(&self) -> String {
         self.id.to_hex()
     }
-    fn lhrs(&self) -> i32 {
-        self.lhrs
-    }
-    fn hwy_number(&self) -> i32 {
-        self.hwy_number
-    }
-    fn hwy_type(&self) -> &String {
-        &self.hwy_type
-    }
-    fn location_desc(&self) -> &String {
-        &self.location_desc
-    }
-    fn reg(&self) -> &String {
-        &self.reg
-    }
-    fn section_length(&self) -> f64 {
-        self.section_length
-    }
-    fn connecting_link_length(&self) -> f64 {
-        self.connecting_link_length
-    }
-    fn secondary_desc(&self) -> &String {
-        &self.secondary_desc
-    }
-    fn travel_patterns(&self) -> &Vec<TravelPattern> {
-        &self.travel_patterns
-    }
-
     fn avg_aadt(&self) -> i32 {
         self.get_avg_aadt().clone().to_owned()
+    }
+}
+
+impl GraphQLType for TrafficData {
+    type Context = AppContext;
+    type TypeInfo = ();
+
+    fn name(_: &()) -> Option<&'static str> {
+        Some("TrafficData")
+    }
+
+    fn meta<'r>(_: &(), registry: &mut Registry<'r>) -> MetaType<'r>
+    where
+        DefaultScalarValue: 'r,
+    {
+        let fields = &[
+            registry.field::<&String>("id", &()),
+            registry.field::<&i32>("lhrs", &()),
+            registry.field::<&i32>("hwyNumber", &()),
+            registry.field::<&String>("hwyType", &()),
+            registry.field::<&String>("locationDesc", &()),
+            registry.field::<&String>("reg", &()),
+            registry.field::<&f64>("sectionLength", &()),
+            registry.field::<&f64>("connectingLinkLength", &()),
+            registry.field::<&String>("secondaryDesc", &()),
+            registry.field::<Vec<TravelPattern>>("travelPatterns", &()),
+            registry.field::<&i32>("avgAadt", &()),
+        ];
+
+        registry
+            .build_object_type::<TrafficData>(&(), fields)
+            .into_meta()
+    }
+
+    fn resolve_field(
+        &self,
+        info: &(),
+        field_name: &str,
+        _args: &Arguments,
+        executor: &Executor<AppContext>,
+    ) -> ExecutionResult {
+        match field_name {
+            "id" => executor.resolve_with_ctx(info, &self.id()),
+            "lhrs" => executor.resolve_with_ctx(info, &self.lhrs),
+            "hwyNumber" => executor.resolve_with_ctx(info, &self.hwy_number),
+            "hwyType" => executor.resolve_with_ctx(info, &self.hwy_type),
+            "locationDesc" => executor.resolve_with_ctx(info, &self.location_desc),
+            "reg" => executor.resolve_with_ctx(info, &self.reg),
+            "sectionLength" => executor.resolve_with_ctx(info, &self.section_length),
+            "connectingLinkLength" => executor.resolve_with_ctx(info, &self.connecting_link_length),
+            "secondaryDesc" => executor.resolve_with_ctx(info, &self.secondary_desc),
+            "travelPatterns" => executor.resolve_with_ctx(info, &self.travel_patterns),
+            "avgAadt" => executor.resolve_with_ctx(info, &self.avg_aadt()),
+            _ => panic!("Field {} not found on type TrafficData", field_name),
+        }
     }
 }
 
@@ -82,12 +112,12 @@ enum SortField {
     AvgAadt,
 }
 
-pub struct Context {}
-impl juniper::Context for Context {}
+pub struct AppContext {}
+impl juniper::Context for AppContext {}
 
 pub struct QueryRoot;
 
-graphql_object!(QueryRoot: Context | &self | {
+graphql_object!(QueryRoot: AppContext | &self | {
     field traffic(&executor, id: String) -> FieldResult<&TrafficData> {
         let records:&Vec<TrafficData> = &RECORDS;
         match records.iter().find(|t| t.id.to_hex() == id) {
@@ -141,7 +171,7 @@ graphql_object!(QueryRoot: Context | &self | {
     }
 });
 
-type MutationRoot = EmptyMutation<Context>;
+type MutationRoot = EmptyMutation<AppContext>;
 
 pub type Schema = RootNode<'static, QueryRoot, MutationRoot>;
 

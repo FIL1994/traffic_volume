@@ -15,7 +15,7 @@ use juniper::http::GraphQLRequest;
 mod db;
 mod schema;
 
-use crate::schema::{create_schema, Context, Schema};
+use crate::schema::{create_schema, AppContext, Schema};
 
 fn graphiql() -> HttpResponse {
     let html = graphiql_source("http://0.0.0.0:8080/graphql");
@@ -29,7 +29,7 @@ fn graphql(
     data: web::Json<GraphQLRequest>,
 ) -> impl Future<Item = HttpResponse, Error = Error> {
     web::block(move || {
-        let ctx = Context {};
+        let ctx = AppContext {};
 
         let res = data.execute(&st, &ctx);
         Ok::<_, serde_json::error::Error>(serde_json::to_string(&res)?)
