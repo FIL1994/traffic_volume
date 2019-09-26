@@ -1,0 +1,9 @@
+[Unit]
+Description=Service for traffic server
+
+[Service]
+Type=simple
+ExecStart=/root/traffic_volume/traffic_server
+
+[Install]
+WantedBy=multi-user.target
