@@ -3,7 +3,8 @@ Description=Service for traffic server
 
 [Service]
 Type=simple
-ExecStart=/root/traffic_volume/traffic_server
+ExecStart=/root/traffic_volume/scripts/start.sh
+ExecStop==/root/traffic_volume/scripts/stop.sh
 Restart=always
 RestartSec=1
 StartLimitBurst=5
