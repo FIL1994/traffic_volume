@@ -4,6 +4,10 @@ Description=Service for traffic server
 [Service]
 Type=simple
 ExecStart=/root/traffic_volume/traffic_server
+Restart=always
+RestartSec=1
+StartLimitBurst=5
+StartLimitIntervalSec=20
 
 [Install]
 WantedBy=multi-user.target
