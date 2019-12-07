@@ -5,4 +5,4 @@ SOURCE=`dirname "$BASH_SOURCE"`
 cd $SOURCE
 cd ../
 
-docker-compose down -t 1
+docker-compose stop -t 1
